@@ -11,6 +11,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/pkg/core/client"
 	"github.com/TrueCloudLab/frostfs-node/pkg/network"
 	"github.com/TrueCloudLab/frostfs-node/pkg/services/object/internal"
+	internalclient "github.com/TrueCloudLab/frostfs-node/pkg/services/object/internal/client"
 	putsvc "github.com/TrueCloudLab/frostfs-node/pkg/services/object/put"
 	"github.com/TrueCloudLab/frostfs-node/pkg/services/object/util"
 )
@@ -153,12 +154,14 @@ func (s *streamer) relayRequest(info client.NodeInfo, c client.MultiAddressClien
 		// send init part
 		err = stream.Write(s.init)
 		if err != nil {
+			internalclient.ReportError(c, err)
 			err = fmt.Errorf("sending the initial message to stream failed: %w", err)
 			return
 		}
 
 		for i := range s.chunks {
 			if err = stream.Write(s.chunks[i]); err != nil {
+				internalclient.ReportError(c, err)
 				err = fmt.Errorf("sending the chunk %d failed: %w", i, err)
 				return
 			}

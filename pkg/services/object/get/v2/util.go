@@ -21,6 +21,7 @@ import (
 	objectSvc "github.com/TrueCloudLab/frostfs-node/pkg/services/object"
 	getsvc "github.com/TrueCloudLab/frostfs-node/pkg/services/object/get"
 	"github.com/TrueCloudLab/frostfs-node/pkg/services/object/internal"
+	internalclient "github.com/TrueCloudLab/frostfs-node/pkg/services/object/internal/client"
 	"github.com/TrueCloudLab/frostfs-node/pkg/services/object/util"
 	apistatus "github.com/TrueCloudLab/frostfs-sdk-go/client/status"
 	frostfscrypto "github.com/TrueCloudLab/frostfs-sdk-go/crypto"
@@ -126,6 +127,7 @@ func (s *Service) toPrm(req *objectV2.GetRequest, stream objectSvc.GetObjectStre
 						break
 					}
 
+					internalclient.ReportError(c, err)
 					return nil, fmt.Errorf("reading the response failed: %w", err)
 				}
 
@@ -288,6 +290,7 @@ func (s *Service) toRangePrm(req *objectV2.GetRangeRequest, stream objectSvc.Get
 						break
 					}
 
+					internalclient.ReportError(c, err)
 					return nil, fmt.Errorf("reading the response failed: %w", err)
 				}
 
