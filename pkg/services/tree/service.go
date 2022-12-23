@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/nspcc-dev/neofs-node/pkg/local_object_storage/pilorama"
-	"github.com/nspcc-dev/neofs-node/pkg/util/logger"
-	"github.com/nspcc-dev/neofs-sdk-go/container/acl"
-	cidSDK "github.com/nspcc-dev/neofs-sdk-go/container/id"
-	netmapSDK "github.com/nspcc-dev/neofs-sdk-go/netmap"
+	"github.com/TrueCloudLab/frostfs-node/pkg/local_object_storage/pilorama"
+	"github.com/TrueCloudLab/frostfs-node/pkg/util/logger"
+	"github.com/TrueCloudLab/frostfs-sdk-go/container/acl"
+	cidSDK "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
+	netmapSDK "github.com/TrueCloudLab/frostfs-sdk-go/netmap"
 	"github.com/panjf2000/ants/v2"
 	"go.uber.org/zap"
 )
