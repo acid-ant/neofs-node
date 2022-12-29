@@ -18,7 +18,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mr-tron/base58 v1.2.0
 	github.com/multiformats/go-multiaddr v0.8.0
-	github.com/nats-io/nats.go v1.16.0
+	github.com/nats-io/nats.go v1.22.1
 	github.com/nspcc-dev/neo-go v0.100.1
 	github.com/nspcc-dev/neo-go/pkg/interop v0.0.0-20221202075445-cb5c18dc73eb // indirect
 	github.com/olekukonko/tablewriter v0.0.5
@@ -94,6 +94,7 @@ require (
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
+	golang.org/x/time v0.1.0 // indirect
 	google.golang.org/genproto v0.0.0-20221227171554-f9683d7f8bef // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
