@@ -53,11 +53,22 @@ func newEngineEvacuate(t *testing.T, shardNum int, objPerShard int) (*StorageEng
 	require.NoError(t, e.Init())
 
 	objects := make([]*objectSDK.Object, 0, objPerShard*len(ids))
+
+	for _, sh := range ids {
+		obj := generateObjectWithCID(t, cidtest.ID())
+		objects = append(objects, obj)
+
+		var putPrm shard.PutPrm
+		putPrm.SetObject(obj)
+		_, err := e.shards[sh.String()].Put(putPrm)
+		require.NoError(t, err)
+	}
+
 	for i := 0; ; i++ {
 		objects = append(objects, generateObjectWithCID(t, cidtest.ID()))
 
 		var putPrm PutPrm
-		putPrm.WithObject(objects[i])
+		putPrm.WithObject(objects[len(objects)-1])
 
 		_, err := e.Put(putPrm)
 		require.NoError(t, err)
