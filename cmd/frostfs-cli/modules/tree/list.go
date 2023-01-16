@@ -3,9 +3,9 @@ package tree
 import (
 	"crypto/sha256"
 
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/services/tree"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	"github.com/spf13/cobra"
@@ -36,12 +36,12 @@ func list(cmd *cobra.Command, _ []string) {
 
 	var cnr cid.ID
 	err := cnr.DecodeString(cidString)
-	common.ExitOnErr(cmd, "decode container ID string: %w", err)
+	commonCmd.ExitOnErr(cmd, "decode container ID string: %w", err)
 
 	ctx := cmd.Context()
 
 	cli, err := _client(ctx)
-	common.ExitOnErr(cmd, "client: %w", err)
+	commonCmd.ExitOnErr(cmd, "client: %w", err)
 
 	rawCID := make([]byte, sha256.Size)
 	cnr.Encode(rawCID)
@@ -52,10 +52,10 @@ func list(cmd *cobra.Command, _ []string) {
 		},
 	}
 
-	common.ExitOnErr(cmd, "message signing: %w", tree.SignMessage(req, pk))
+	commonCmd.ExitOnErr(cmd, "message signing: %w", tree.SignMessage(req, pk))
 
 	resp, err := cli.TreeList(ctx, req)
-	common.ExitOnErr(cmd, "rpc call: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc call: %w", err)
 
 	for _, treeID := range resp.GetBody().GetIds() {
 		cmd.Println(treeID)

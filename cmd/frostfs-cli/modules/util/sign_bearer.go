@@ -6,6 +6,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/spf13/cobra"
 )
 
@@ -37,7 +38,7 @@ func signBearerToken(cmd *cobra.Command, _ []string) {
 	pk := key.GetOrGenerate(cmd)
 
 	err := btok.Sign(*pk)
-	common.ExitOnErr(cmd, "", err)
+	commonCmd.ExitOnErr(cmd, "", err)
 
 	to := cmd.Flag(signToFlag).Value.String()
 	jsonFlag, _ := cmd.Flags().GetBool(signBearerJSONFlag)
@@ -45,7 +46,7 @@ func signBearerToken(cmd *cobra.Command, _ []string) {
 	var data []byte
 	if jsonFlag || len(to) == 0 {
 		data, err = btok.MarshalJSON()
-		common.ExitOnErr(cmd, "can't JSON encode bearer token: %w", err)
+		commonCmd.ExitOnErr(cmd, "can't JSON encode bearer token: %w", err)
 	} else {
 		data = btok.Marshal()
 	}
@@ -56,7 +57,7 @@ func signBearerToken(cmd *cobra.Command, _ []string) {
 	}
 
 	err = os.WriteFile(to, data, 0644)
-	common.ExitOnErr(cmd, "can't write signed bearer token to file: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't write signed bearer token to file: %w", err)
 
 	cmd.Printf("signed bearer token was successfully dumped to %s\n", to)
 }

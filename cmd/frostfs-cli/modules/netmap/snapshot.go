@@ -2,9 +2,9 @@ package netmap
 
 import (
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/spf13/cobra"
 )
 
@@ -20,9 +20,9 @@ var snapshotCmd = &cobra.Command{
 		prm.SetClient(cli)
 
 		res, err := internalclient.NetMapSnapshot(prm)
-		common.ExitOnErr(cmd, "rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
-		common.PrettyPrintNetMap(cmd, res.NetMap())
+		commonCmd.PrettyPrintNetMap(cmd, res.NetMap(), false)
 	},
 }
 

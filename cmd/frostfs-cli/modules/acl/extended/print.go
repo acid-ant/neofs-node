@@ -4,8 +4,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/modules/util"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-sdk-go/eacl"
 	"github.com/spf13/cobra"
 )
@@ -27,12 +27,12 @@ func printEACL(cmd *cobra.Command, _ []string) {
 	file, _ := cmd.Flags().GetString("file")
 	eaclTable := new(eacl.Table)
 	data, err := os.ReadFile(file)
-	common.ExitOnErr(cmd, "can't read file with EACL: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't read file with EACL: %w", err)
 	if strings.HasSuffix(file, ".json") {
-		common.ExitOnErr(cmd, "unable to parse json: %w", eaclTable.UnmarshalJSON(data))
+		commonCmd.ExitOnErr(cmd, "unable to parse json: %w", eaclTable.UnmarshalJSON(data))
 	} else {
 		rules := strings.Split(strings.TrimSpace(string(data)), "\n")
-		common.ExitOnErr(cmd, "can't parse file with EACL: %w", util.ParseEACLRules(eaclTable, rules))
+		commonCmd.ExitOnErr(cmd, "can't parse file with EACL: %w", util.ParseEACLRules(eaclTable, rules))
 	}
 	util.PrettyPrintTableEACL(cmd, eaclTable)
 }

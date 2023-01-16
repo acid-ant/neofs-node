@@ -10,6 +10,7 @@ import (
 
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/network"
 	"github.com/TrueCloudLab/frostfs-sdk-go/client"
 	"github.com/spf13/cobra"
@@ -23,7 +24,7 @@ var errInvalidEndpoint = errors.New("provided RPC endpoint is incorrect")
 func GetSDKClientByFlag(cmd *cobra.Command, key *ecdsa.PrivateKey, endpointFlag string) *client.Client {
 	cli, err := getSDKClientByFlag(cmd, key, endpointFlag)
 	if err != nil {
-		common.ExitOnErr(cmd, "can't create API client: %w", err)
+		commonCmd.ExitOnErr(cmd, "can't create API client: %w", err)
 	}
 	return cli
 }

@@ -1,8 +1,8 @@
 package basic
 
 import (
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/modules/util"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-sdk-go/container/acl"
 	"github.com/spf13/cobra"
 )
@@ -23,6 +23,6 @@ InnerRing members are allowed to data audit ops only:
 
 func printACL(cmd *cobra.Command, args []string) {
 	var bacl acl.Basic
-	common.ExitOnErr(cmd, "unable to parse basic acl: %w", bacl.DecodeString(args[0]))
+	commonCmd.ExitOnErr(cmd, "unable to parse basic acl: %w", bacl.DecodeString(args[0]))
 	util.PrettyPrintTableBACL(cmd, &bacl)
 }

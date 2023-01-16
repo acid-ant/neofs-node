@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/core/version"
 	"github.com/TrueCloudLab/frostfs-sdk-go/eacl"
 	versionSDK "github.com/TrueCloudLab/frostfs-sdk-go/version"
@@ -16,13 +17,13 @@ var errUnsupportedEACLFormat = errors.New("unsupported eACL format")
 func ReadEACL(cmd *cobra.Command, eaclPath string) *eacl.Table {
 	_, err := os.Stat(eaclPath) // check if `eaclPath` is an existing file
 	if err != nil {
-		ExitOnErr(cmd, "", errors.New("incorrect path to file with EACL"))
+		commonCmd.ExitOnErr(cmd, "", errors.New("incorrect path to file with EACL"))
 	}
 
 	PrintVerbose(cmd, "Reading EACL from file: %s", eaclPath)
 
 	data, err := os.ReadFile(eaclPath)
-	ExitOnErr(cmd, "can't read file with EACL: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't read file with EACL: %w", err)
 
 	table := eacl.NewTable()
 
@@ -38,7 +39,7 @@ func ReadEACL(cmd *cobra.Command, eaclPath string) *eacl.Table {
 		return table
 	}
 
-	ExitOnErr(cmd, "", errUnsupportedEACLFormat)
+	commonCmd.ExitOnErr(cmd, "", errUnsupportedEACLFormat)
 	return nil
 }
 

@@ -11,6 +11,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	sessionCli "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/modules/session"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-sdk-go/bearer"
 	"github.com/TrueCloudLab/frostfs-sdk-go/client"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
@@ -85,9 +86,9 @@ func readObjectAddress(cmd *cobra.Command, cnr *cid.ID, obj *oid.ID) oid.Address
 
 func readObjectAddressBin(cmd *cobra.Command, cnr *cid.ID, obj *oid.ID, filename string) oid.Address {
 	buf, err := os.ReadFile(filename)
-	common.ExitOnErr(cmd, "unable to read given file: %w", err)
+	commonCmd.ExitOnErr(cmd, "unable to read given file: %w", err)
 	objTemp := object.New()
-	common.ExitOnErr(cmd, "can't unmarshal object from given file: %w", objTemp.Unmarshal(buf))
+	commonCmd.ExitOnErr(cmd, "can't unmarshal object from given file: %w", objTemp.Unmarshal(buf))
 
 	var addr oid.Address
 	*cnr, _ = objTemp.ContainerID()
@@ -99,12 +100,12 @@ func readObjectAddressBin(cmd *cobra.Command, cnr *cid.ID, obj *oid.ID, filename
 
 func readCID(cmd *cobra.Command, id *cid.ID) {
 	err := id.DecodeString(cmd.Flag(commonflags.CIDFlag).Value.String())
-	common.ExitOnErr(cmd, "decode container ID string: %w", err)
+	commonCmd.ExitOnErr(cmd, "decode container ID string: %w", err)
 }
 
 func readOID(cmd *cobra.Command, id *oid.ID) {
 	err := id.DecodeString(cmd.Flag(commonflags.OIDFlag).Value.String())
-	common.ExitOnErr(cmd, "decode object ID string: %w", err)
+	commonCmd.ExitOnErr(cmd, "decode object ID string: %w", err)
 }
 
 // SessionPrm is a common interface of object operation's input which supports
@@ -140,7 +141,7 @@ func getSession(cmd *cobra.Command) *session.Object {
 	var tok session.Object
 
 	err := common.ReadBinaryOrJSON(cmd, &tok, path)
-	common.ExitOnErr(cmd, "read session: %v", err)
+	commonCmd.ExitOnErr(cmd, "read session: %v", err)
 
 	return &tok
 }
@@ -189,15 +190,15 @@ func _readVerifiedSession(cmd *cobra.Command, dst SessionPrm, key *ecdsa.Private
 
 	switch false {
 	case tok.AssertContainer(cnr):
-		common.ExitOnErr(cmd, "", errors.New("unrelated container in the session"))
+		commonCmd.ExitOnErr(cmd, "", errors.New("unrelated container in the session"))
 	case obj == nil || tok.AssertObject(*obj):
-		common.ExitOnErr(cmd, "", errors.New("unrelated object in the session"))
+		commonCmd.ExitOnErr(cmd, "", errors.New("unrelated object in the session"))
 	case tok.AssertVerb(cmdVerb):
-		common.ExitOnErr(cmd, "", errors.New("wrong verb of the session"))
+		commonCmd.ExitOnErr(cmd, "", errors.New("wrong verb of the session"))
 	case tok.AssertAuthKey((*frostfsecdsa.PublicKey)(&key.PublicKey)):
-		common.ExitOnErr(cmd, "", errors.New("unrelated key in the session"))
+		commonCmd.ExitOnErr(cmd, "", errors.New("unrelated key in the session"))
 	case tok.VerifySignature():
-		common.ExitOnErr(cmd, "", errors.New("invalid signature of the session data"))
+		commonCmd.ExitOnErr(cmd, "", errors.New("invalid signature of the session data"))
 	}
 
 	common.PrintVerbose(cmd, "Session is correct.")
@@ -278,7 +279,7 @@ func OpenSessionViaClient(cmd *cobra.Command, dst SessionPrm, cli *client.Client
 	common.PrintVerbose(cmd, "Opening remote session with the node...")
 
 	err := sessionCli.CreateSession(&tok, cli, sessionLifetime)
-	common.ExitOnErr(cmd, "open remote session: %w", err)
+	commonCmd.ExitOnErr(cmd, "open remote session: %w", err)
 
 	common.PrintVerbose(cmd, "Session successfully opened.")
 
@@ -321,7 +322,7 @@ func finalizeSession(cmd *cobra.Command, dst SessionPrm, tok *session.Object, ke
 	common.PrintVerbose(cmd, "Signing session...")
 
 	err := tok.Sign(*key)
-	common.ExitOnErr(cmd, "sign session: %w", err)
+	commonCmd.ExitOnErr(cmd, "sign session: %w", err)
 
 	common.PrintVerbose(cmd, "Session token successfully formed and attached to the request.")
 
@@ -359,7 +360,7 @@ func collectObjectRelatives(cmd *cobra.Command, cli *client.Client, cnr cid.ID, 
 
 	switch {
 	default:
-		common.ExitOnErr(cmd, "failed to get raw object header: %w", err)
+		commonCmd.ExitOnErr(cmd, "failed to get raw object header: %w", err)
 	case err == nil:
 		common.PrintVerbose(cmd, "Raw header received - object is singular.")
 		return nil
@@ -407,7 +408,7 @@ func collectObjectRelatives(cmd *cobra.Command, cli *client.Client, cnr cid.ID, 
 		prm.SetFilters(query)
 
 		res, err := internal.SearchObjects(prm)
-		common.ExitOnErr(cmd, "failed to search objects by split ID: %w", err)
+		commonCmd.ExitOnErr(cmd, "failed to search objects by split ID: %w", err)
 
 		members := res.IDList()
 
@@ -418,7 +419,7 @@ func collectObjectRelatives(cmd *cobra.Command, cli *client.Client, cnr cid.ID, 
 
 	idMember, ok := splitInfo.LastPart()
 	if !ok {
-		common.ExitOnErr(cmd, "", errors.New("missing any data in received object split information"))
+		commonCmd.ExitOnErr(cmd, "", errors.New("missing any data in received object split information"))
 	}
 
 	common.PrintVerbose(cmd, "Traverse the object split chain in reverse...", idMember)
@@ -436,7 +437,7 @@ func collectObjectRelatives(cmd *cobra.Command, cli *client.Client, cnr cid.ID, 
 		addrObj.SetObject(idMember)
 
 		res, err = internal.HeadObject(prmHead)
-		common.ExitOnErr(cmd, "failed to read split chain member's header: %w", err)
+		commonCmd.ExitOnErr(cmd, "failed to read split chain member's header: %w", err)
 
 		idMember, ok = res.Header().PreviousID()
 		if !ok {
@@ -445,7 +446,7 @@ func collectObjectRelatives(cmd *cobra.Command, cli *client.Client, cnr cid.ID, 
 		}
 
 		if _, ok = chainSet[idMember]; ok {
-			common.ExitOnErr(cmd, "", fmt.Errorf("duplicated member in the split chain %s", idMember))
+			commonCmd.ExitOnErr(cmd, "", fmt.Errorf("duplicated member in the split chain %s", idMember))
 		}
 
 		chain = append(chain, idMember)
@@ -463,7 +464,7 @@ func collectObjectRelatives(cmd *cobra.Command, cli *client.Client, cnr cid.ID, 
 	prmSearch.SetFilters(query)
 
 	resSearch, err := internal.SearchObjects(prmSearch)
-	common.ExitOnErr(cmd, "failed to find object children: %w", err)
+	commonCmd.ExitOnErr(cmd, "failed to find object children: %w", err)
 
 	list := resSearch.IDList()
 

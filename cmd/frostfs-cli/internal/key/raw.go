@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/nspcc-dev/neo-go/pkg/crypto/keys"
 	"github.com/nspcc-dev/neo-go/pkg/wallet"
 	"github.com/spf13/cobra"
@@ -21,7 +21,7 @@ var errCantGenerateKey = errors.New("can't generate new private key")
 // This function assumes that all flags were bind to viper in a `PersistentPreRun`.
 func Get(cmd *cobra.Command) *ecdsa.PrivateKey {
 	pk, err := get(cmd)
-	common.ExitOnErr(cmd, "can't fetch private key: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't fetch private key: %w", err)
 	return pk
 }
 
@@ -46,7 +46,7 @@ func get(cmd *cobra.Command) (*ecdsa.PrivateKey, error) {
 // GetOrGenerate is similar to get but generates a new key if commonflags.GenerateKey is set.
 func GetOrGenerate(cmd *cobra.Command) *ecdsa.PrivateKey {
 	pk, err := getOrGenerate(cmd)
-	common.ExitOnErr(cmd, "can't fetch private key: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't fetch private key: %w", err)
 	return pk
 }
 

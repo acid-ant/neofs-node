@@ -6,8 +6,8 @@ import (
 
 	"github.com/TrueCloudLab/frostfs-api-go/v2/refs"
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	controlSvc "github.com/TrueCloudLab/frostfs-node/pkg/services/control/server"
 	"github.com/TrueCloudLab/frostfs-sdk-go/client"
 	frostfscrypto "github.com/TrueCloudLab/frostfs-sdk-go/crypto"
@@ -24,7 +24,7 @@ func initControlFlags(cmd *cobra.Command) {
 
 func signRequest(cmd *cobra.Command, pk *ecdsa.PrivateKey, req controlSvc.SignedMessage) {
 	err := controlSvc.SignMessage(pk, req)
-	common.ExitOnErr(cmd, "could not sign request: %w", err)
+	commonCmd.ExitOnErr(cmd, "could not sign request: %w", err)
 }
 
 func verifyResponse(cmd *cobra.Command,
@@ -37,7 +37,7 @@ func verifyResponse(cmd *cobra.Command,
 	},
 ) {
 	if sigControl == nil {
-		common.ExitOnErr(cmd, "", errors.New("missing response signature"))
+		commonCmd.ExitOnErr(cmd, "", errors.New("missing response signature"))
 	}
 
 	// TODO(@cthulhu-rider): #1387 use Signature message from NeoFS API to avoid conversion
@@ -47,10 +47,10 @@ func verifyResponse(cmd *cobra.Command,
 	sigV2.SetSign(sigControl.GetSign())
 
 	var sig frostfscrypto.Signature
-	common.ExitOnErr(cmd, "can't read signature: %w", sig.ReadFromV2(sigV2))
+	commonCmd.ExitOnErr(cmd, "can't read signature: %w", sig.ReadFromV2(sigV2))
 
 	if !sig.Verify(body.StableMarshal(nil)) {
-		common.ExitOnErr(cmd, "", errors.New("invalid response signature"))
+		commonCmd.ExitOnErr(cmd, "", errors.New("invalid response signature"))
 	}
 }
 

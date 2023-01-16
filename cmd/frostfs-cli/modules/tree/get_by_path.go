@@ -7,6 +7,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/services/tree"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	"github.com/TrueCloudLab/frostfs-sdk-go/object"
@@ -46,13 +47,13 @@ func getByPath(cmd *cobra.Command, _ []string) {
 
 	var cnr cid.ID
 	err := cnr.DecodeString(cidRaw)
-	common.ExitOnErr(cmd, "decode container ID string: %w", err)
+	commonCmd.ExitOnErr(cmd, "decode container ID string: %w", err)
 
 	tid, _ := cmd.Flags().GetString(treeIDFlagKey)
 	ctx := cmd.Context()
 
 	cli, err := _client(ctx)
-	common.ExitOnErr(cmd, "client: %w", err)
+	commonCmd.ExitOnErr(cmd, "client: %w", err)
 
 	rawCID := make([]byte, sha256.Size)
 	cnr.Encode(rawCID)
@@ -73,10 +74,10 @@ func getByPath(cmd *cobra.Command, _ []string) {
 		BearerToken:   nil, // TODO: #1891 add token handling
 	}
 
-	common.ExitOnErr(cmd, "message signing: %w", tree.SignMessage(req, pk))
+	commonCmd.ExitOnErr(cmd, "message signing: %w", tree.SignMessage(req, pk))
 
 	resp, err := cli.GetNodeByPath(ctx, req)
-	common.ExitOnErr(cmd, "rpc call: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc call: %w", err)
 
 	nn := resp.GetBody().GetNodes()
 	if len(nn) == 0 {

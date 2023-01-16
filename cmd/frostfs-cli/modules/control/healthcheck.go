@@ -4,8 +4,8 @@ import (
 	"crypto/ecdsa"
 
 	rawclient "github.com/TrueCloudLab/frostfs-api-go/v2/rpc/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/services/control"
 	ircontrol "github.com/TrueCloudLab/frostfs-node/pkg/services/control/ir"
 	ircontrolsrv "github.com/TrueCloudLab/frostfs-node/pkg/services/control/ir/server"
@@ -52,7 +52,7 @@ func healthCheck(cmd *cobra.Command, _ []string) {
 		resp, err = control.HealthCheck(client, req)
 		return err
 	})
-	common.ExitOnErr(cmd, "rpc error: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 	verifyResponse(cmd, resp.GetSignature(), resp.GetBody())
 
@@ -66,14 +66,14 @@ func healthCheckIR(cmd *cobra.Command, key *ecdsa.PrivateKey, c *client.Client) 
 	req.SetBody(new(ircontrol.HealthCheckRequest_Body))
 
 	err := ircontrolsrv.SignMessage(key, req)
-	common.ExitOnErr(cmd, "could not sign request: %w", err)
+	commonCmd.ExitOnErr(cmd, "could not sign request: %w", err)
 
 	var resp *ircontrol.HealthCheckResponse
 	err = c.ExecRaw(func(client *rawclient.Client) error {
 		resp, err = ircontrol.HealthCheck(client, req)
 		return err
 	})
-	common.ExitOnErr(cmd, "rpc error: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 	verifyResponse(cmd, resp.GetSignature(), resp.GetBody())
 

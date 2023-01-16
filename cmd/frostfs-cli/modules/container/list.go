@@ -5,9 +5,9 @@ import (
 
 	"github.com/TrueCloudLab/frostfs-api-go/v2/container"
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-sdk-go/user"
 	"github.com/spf13/cobra"
 )
@@ -37,7 +37,7 @@ var listContainersCmd = &cobra.Command{
 			user.IDFromKey(&idUser, key.PublicKey)
 		} else {
 			err := idUser.DecodeString(flagVarListContainerOwner)
-			common.ExitOnErr(cmd, "invalid user ID: %w", err)
+			commonCmd.ExitOnErr(cmd, "invalid user ID: %w", err)
 		}
 
 		cli := internalclient.GetSDKClientByFlag(cmd, key, commonflags.RPC)
@@ -47,7 +47,7 @@ var listContainersCmd = &cobra.Command{
 		prm.SetAccount(idUser)
 
 		res, err := internalclient.ListContainers(prm)
-		common.ExitOnErr(cmd, "rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 		var prmGet internalclient.GetContainerPrm
 		prmGet.SetClient(cli)

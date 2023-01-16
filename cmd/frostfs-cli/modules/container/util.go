@@ -5,6 +5,7 @@ import (
 
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	"github.com/TrueCloudLab/frostfs-sdk-go/session"
 	"github.com/spf13/cobra"
@@ -24,12 +25,12 @@ var (
 
 func parseContainerID(cmd *cobra.Command) cid.ID {
 	if containerID == "" {
-		common.ExitOnErr(cmd, "", errors.New("container ID is not set"))
+		commonCmd.ExitOnErr(cmd, "", errors.New("container ID is not set"))
 	}
 
 	var id cid.ID
 	err := id.DecodeString(containerID)
-	common.ExitOnErr(cmd, "can't decode container ID value: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't decode container ID value: %w", err)
 	return id
 }
 
@@ -49,7 +50,7 @@ func getSession(cmd *cobra.Command) *session.Container {
 	var res session.Container
 
 	err := common.ReadBinaryOrJSON(cmd, &res, path)
-	common.ExitOnErr(cmd, "read container session: %v", err)
+	commonCmd.ExitOnErr(cmd, "read container session: %v", err)
 
 	common.PrintVerbose(cmd, "Session successfully read.")
 

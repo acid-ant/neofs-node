@@ -7,6 +7,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/services/control"
 	"github.com/spf13/cobra"
 )
@@ -57,7 +58,7 @@ func setNetmapStatus(cmd *cobra.Command, _ []string) {
 
 	switch st, _ := cmd.Flags().GetString(netmapStatusFlag); st {
 	default:
-		common.ExitOnErr(cmd, "", fmt.Errorf("unsupported status %s", st))
+		commonCmd.ExitOnErr(cmd, "", fmt.Errorf("unsupported status %s", st))
 	case netmapStatusOnline:
 		body.SetStatus(control.NetmapStatus_ONLINE)
 		printIgnoreForce(control.NetmapStatus_ONLINE)
@@ -86,7 +87,7 @@ func setNetmapStatus(cmd *cobra.Command, _ []string) {
 		resp, err = control.SetNetmapStatus(client, req)
 		return err
 	})
-	common.ExitOnErr(cmd, "rpc error: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 	verifyResponse(cmd, resp.GetSignature(), resp.GetBody())
 

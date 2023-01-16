@@ -4,9 +4,9 @@ import (
 	"crypto/sha256"
 
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	containerAPI "github.com/TrueCloudLab/frostfs-sdk-go/container"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	"github.com/TrueCloudLab/frostfs-sdk-go/netmap"
@@ -32,7 +32,7 @@ var containerNodesCmd = &cobra.Command{
 		prm.SetClient(cli)
 
 		resmap, err := internalclient.NetMapSnapshot(prm)
-		common.ExitOnErr(cmd, "unable to get netmap snapshot", err)
+		commonCmd.ExitOnErr(cmd, "unable to get netmap snapshot", err)
 
 		var id cid.ID
 		containerAPI.CalculateID(&id, cnr)
@@ -43,12 +43,12 @@ var containerNodesCmd = &cobra.Command{
 
 		var cnrNodes [][]netmap.NodeInfo
 		cnrNodes, err = resmap.NetMap().ContainerNodes(policy, binCnr)
-		common.ExitOnErr(cmd, "could not build container nodes for given container: %w", err)
+		commonCmd.ExitOnErr(cmd, "could not build container nodes for given container: %w", err)
 
 		for i := range cnrNodes {
 			cmd.Printf("Descriptor #%d, REP %d:\n", i+1, policy.ReplicaNumberByIndex(i))
 			for j := range cnrNodes[i] {
-				common.PrettyPrintNodeInfo(cmd, cnrNodes[i][j], j, "\t", short)
+				commonCmd.PrettyPrintNodeInfo(cmd, cnrNodes[i][j], j, "\t", short)
 			}
 		}
 	},

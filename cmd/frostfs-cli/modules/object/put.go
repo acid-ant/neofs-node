@@ -12,9 +12,9 @@ import (
 
 	objectV2 "github.com/TrueCloudLab/frostfs-api-go/v2/object"
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	"github.com/TrueCloudLab/frostfs-sdk-go/object"
 	"github.com/TrueCloudLab/frostfs-sdk-go/user"
@@ -63,7 +63,7 @@ func putObject(cmd *cobra.Command, _ []string) {
 	cidVal, _ := cmd.Flags().GetString(commonflags.CIDFlag)
 
 	if !binary && cidVal == "" {
-		common.ExitOnErr(cmd, "", fmt.Errorf("required flag \"%s\" not set", commonflags.CIDFlag))
+		commonCmd.ExitOnErr(cmd, "", fmt.Errorf("required flag \"%s\" not set", commonflags.CIDFlag))
 	}
 	pk := key.GetOrGenerate(cmd)
 
@@ -73,17 +73,17 @@ func putObject(cmd *cobra.Command, _ []string) {
 	filename, _ := cmd.Flags().GetString(fileFlag)
 	f, err := os.OpenFile(filename, os.O_RDONLY, os.ModePerm)
 	if err != nil {
-		common.ExitOnErr(cmd, "", fmt.Errorf("can't open file '%s': %w", filename, err))
+		commonCmd.ExitOnErr(cmd, "", fmt.Errorf("can't open file '%s': %w", filename, err))
 	}
 	var payloadReader io.Reader = f
 	obj := object.New()
 
 	if binary {
 		buf, err := os.ReadFile(filename)
-		common.ExitOnErr(cmd, "unable to read given file: %w", err)
+		commonCmd.ExitOnErr(cmd, "unable to read given file: %w", err)
 		objTemp := object.New()
 		// TODO(@acid-ant): #1932 Use streams to marshal/unmarshal payload
-		common.ExitOnErr(cmd, "can't unmarshal object from given file: %w", objTemp.Unmarshal(buf))
+		commonCmd.ExitOnErr(cmd, "can't unmarshal object from given file: %w", objTemp.Unmarshal(buf))
 		payloadReader = bytes.NewReader(objTemp.Payload())
 		cnr, _ = objTemp.ContainerID()
 		ownerID = *objTemp.OwnerID()
@@ -93,7 +93,7 @@ func putObject(cmd *cobra.Command, _ []string) {
 	}
 
 	attrs, err := parseObjectAttrs(cmd)
-	common.ExitOnErr(cmd, "can't parse object attributes: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't parse object attributes: %w", err)
 
 	expiresOn, _ := cmd.Flags().GetUint64(commonflags.ExpireAt)
 	if expiresOn > 0 {
@@ -121,7 +121,7 @@ func putObject(cmd *cobra.Command, _ []string) {
 	obj.SetAttributes(attrs...)
 
 	notificationInfo, err := parseObjectNotifications(cmd)
-	common.ExitOnErr(cmd, "can't parse object notification information: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't parse object notification information: %w", err)
 
 	if notificationInfo != nil {
 		obj.SetNotification(*notificationInfo)
@@ -163,7 +163,7 @@ func putObject(cmd *cobra.Command, _ []string) {
 	if p != nil {
 		p.Finish()
 	}
-	common.ExitOnErr(cmd, "rpc error: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 	cmd.Printf("[%s] Object successfully stored\n", filename)
 	cmd.Printf("  OID: %s\n  CID: %s\n", res.ID(), cnr)

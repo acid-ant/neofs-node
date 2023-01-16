@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	oid "github.com/TrueCloudLab/frostfs-sdk-go/object/id"
 	"github.com/spf13/cobra"
@@ -41,18 +41,18 @@ func deleteObject(cmd *cobra.Command, _ []string) {
 	if binary {
 		filename, _ := cmd.Flags().GetString(fileFlag)
 		if filename == "" {
-			common.ExitOnErr(cmd, "", fmt.Errorf("required flag \"%s\" not set", fileFlag))
+			commonCmd.ExitOnErr(cmd, "", fmt.Errorf("required flag \"%s\" not set", fileFlag))
 		}
 		objAddr = readObjectAddressBin(cmd, &cnr, &obj, filename)
 	} else {
 		cidVal, _ := cmd.Flags().GetString(commonflags.CIDFlag)
 		if cidVal == "" {
-			common.ExitOnErr(cmd, "", fmt.Errorf("required flag \"%s\" not set", commonflags.CIDFlag))
+			commonCmd.ExitOnErr(cmd, "", fmt.Errorf("required flag \"%s\" not set", commonflags.CIDFlag))
 		}
 
 		oidVal, _ := cmd.Flags().GetString(commonflags.OIDFlag)
 		if oidVal == "" {
-			common.ExitOnErr(cmd, "", fmt.Errorf("required flag \"%s\" not set", commonflags.OIDFlag))
+			commonCmd.ExitOnErr(cmd, "", fmt.Errorf("required flag \"%s\" not set", commonflags.OIDFlag))
 		}
 
 		objAddr = readObjectAddress(cmd, &cnr, &obj)
@@ -66,7 +66,7 @@ func deleteObject(cmd *cobra.Command, _ []string) {
 	prm.SetAddress(objAddr)
 
 	res, err := internalclient.DeleteObject(prm)
-	common.ExitOnErr(cmd, "rpc error: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 	tomb := res.Tombstone()
 

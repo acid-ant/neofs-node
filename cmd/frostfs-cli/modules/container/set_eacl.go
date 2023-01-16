@@ -9,6 +9,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/spf13/cobra"
 )
 
@@ -38,10 +39,10 @@ Container ID in EACL table will be substituted with ID from the CLI.`,
 			cmd.Println("Checking the ability to modify access rights in the container...")
 
 			extendable, err := internalclient.IsACLExtendable(cli, id)
-			common.ExitOnErr(cmd, "Extensibility check failure: %w", err)
+			commonCmd.ExitOnErr(cmd, "Extensibility check failure: %w", err)
 
 			if !extendable {
-				common.ExitOnErr(cmd, "", errors.New("container ACL is immutable"))
+				commonCmd.ExitOnErr(cmd, "", errors.New("container ACL is immutable"))
 			}
 
 			cmd.Println("ACL extension is enabled in the container, continue processing.")
@@ -56,11 +57,11 @@ Container ID in EACL table will be substituted with ID from the CLI.`,
 		}
 
 		_, err := internalclient.SetEACL(setEACLPrm)
-		common.ExitOnErr(cmd, "rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 		if containerAwait {
 			exp, err := eaclTable.Marshal()
-			common.ExitOnErr(cmd, "broken EACL table: %w", err)
+			commonCmd.ExitOnErr(cmd, "broken EACL table: %w", err)
 
 			cmd.Println("awaiting...")
 
@@ -87,7 +88,7 @@ Container ID in EACL table will be substituted with ID from the CLI.`,
 				}
 			}
 
-			common.ExitOnErr(cmd, "", errSetEACLTimeout)
+			commonCmd.ExitOnErr(cmd, "", errSetEACLTimeout)
 		}
 	},
 }

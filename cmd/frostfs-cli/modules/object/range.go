@@ -10,9 +10,9 @@ import (
 	"strings"
 
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	"github.com/TrueCloudLab/frostfs-sdk-go/object"
 	oid "github.com/TrueCloudLab/frostfs-sdk-go/object/id"
@@ -50,10 +50,10 @@ func getObjectRange(cmd *cobra.Command, _ []string) {
 	objAddr := readObjectAddress(cmd, &cnr, &obj)
 
 	ranges, err := getRangeList(cmd)
-	common.ExitOnErr(cmd, "", err)
+	commonCmd.ExitOnErr(cmd, "", err)
 
 	if len(ranges) != 1 {
-		common.ExitOnErr(cmd, "", fmt.Errorf("exactly one range must be specified, got: %d", len(ranges)))
+		commonCmd.ExitOnErr(cmd, "", fmt.Errorf("exactly one range must be specified, got: %d", len(ranges)))
 	}
 
 	var out io.Writer
@@ -64,7 +64,7 @@ func getObjectRange(cmd *cobra.Command, _ []string) {
 	} else {
 		f, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 		if err != nil {
-			common.ExitOnErr(cmd, "", fmt.Errorf("can't open file '%s': %w", filename, err))
+			commonCmd.ExitOnErr(cmd, "", fmt.Errorf("can't open file '%s': %w", filename, err))
 		}
 
 		defer f.Close()
@@ -93,7 +93,7 @@ func getObjectRange(cmd *cobra.Command, _ []string) {
 			return
 		}
 
-		common.ExitOnErr(cmd, "can't get object payload range: %w", err)
+		commonCmd.ExitOnErr(cmd, "can't get object payload range: %w", err)
 	}
 
 	if filename != "" {
@@ -116,7 +116,7 @@ func printSplitInfoErr(cmd *cobra.Command, err error) bool {
 
 func printSplitInfo(cmd *cobra.Command, info *object.SplitInfo) {
 	bs, err := marshalSplitInfo(cmd, info)
-	common.ExitOnErr(cmd, "can't marshal split info: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't marshal split info: %w", err)
 
 	cmd.Println(string(bs))
 }

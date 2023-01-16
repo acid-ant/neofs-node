@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/util/keyer"
 	"github.com/spf13/cobra"
 )
@@ -41,7 +41,7 @@ func processKeyer(cmd *cobra.Command, args []string) {
 		err = result.ParseMultiSig(args)
 	} else {
 		if len(args) > 1 {
-			common.ExitOnErr(cmd, "", errKeyerSingleArgument)
+			commonCmd.ExitOnErr(cmd, "", errKeyerSingleArgument)
 		}
 
 		var argument string
@@ -59,7 +59,7 @@ func processKeyer(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	common.ExitOnErr(cmd, "", err)
+	commonCmd.ExitOnErr(cmd, "", err)
 
 	result.PrettyPrint(uncompressed, useHex)
 }

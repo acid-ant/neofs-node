@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-sdk-go/checksum"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	oid "github.com/TrueCloudLab/frostfs-sdk-go/object/id"
@@ -54,14 +54,14 @@ func getObjectHash(cmd *cobra.Command, _ []string) {
 	objAddr := readObjectAddress(cmd, &cnr, &obj)
 
 	ranges, err := getRangeList(cmd)
-	common.ExitOnErr(cmd, "", err)
+	commonCmd.ExitOnErr(cmd, "", err)
 	typ, err := getHashType(cmd)
-	common.ExitOnErr(cmd, "", err)
+	commonCmd.ExitOnErr(cmd, "", err)
 
 	strSalt := strings.TrimPrefix(cmd.Flag(getRangeHashSaltFlag).Value.String(), "0x")
 
 	salt, err := hex.DecodeString(strSalt)
-	common.ExitOnErr(cmd, "could not decode salt: %w", err)
+	commonCmd.ExitOnErr(cmd, "could not decode salt: %w", err)
 
 	pk := key.GetOrGenerate(cmd)
 	cli := internalclient.GetSDKClientByFlag(cmd, pk, commonflags.RPC)
@@ -76,7 +76,7 @@ func getObjectHash(cmd *cobra.Command, _ []string) {
 
 		// get hash of full payload through HEAD (may be user can do it through dedicated command?)
 		res, err := internalclient.HeadObject(headPrm)
-		common.ExitOnErr(cmd, "rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 		var cs checksum.Checksum
 		var csSet bool
@@ -109,7 +109,7 @@ func getObjectHash(cmd *cobra.Command, _ []string) {
 	}
 
 	res, err := internalclient.HashPayloadRanges(hashPrm)
-	common.ExitOnErr(cmd, "rpc error: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 	hs := res.HashList()
 

@@ -4,9 +4,9 @@ import (
 	"math/big"
 
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/util/precision"
 	"github.com/TrueCloudLab/frostfs-sdk-go/accounting"
 	"github.com/TrueCloudLab/frostfs-sdk-go/user"
@@ -32,7 +32,7 @@ var accountingBalanceCmd = &cobra.Command{
 		if balanceOwner == "" {
 			user.IDFromKey(&idUser, pk.PublicKey)
 		} else {
-			common.ExitOnErr(cmd, "can't decode owner ID wallet address: %w", idUser.DecodeString(balanceOwner))
+			commonCmd.ExitOnErr(cmd, "can't decode owner ID wallet address: %w", idUser.DecodeString(balanceOwner))
 		}
 
 		cli := internalclient.GetSDKClientByFlag(cmd, pk, commonflags.RPC)
@@ -42,7 +42,7 @@ var accountingBalanceCmd = &cobra.Command{
 		prm.SetAccount(idUser)
 
 		res, err := internalclient.BalanceOf(prm)
-		common.ExitOnErr(cmd, "rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 		// print to stdout
 		prettyPrintDecimal(cmd, res.Balance())

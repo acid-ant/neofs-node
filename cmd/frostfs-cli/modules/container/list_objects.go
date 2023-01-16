@@ -5,10 +5,10 @@ import (
 
 	v2object "github.com/TrueCloudLab/frostfs-api-go/v2/object"
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
 	objectCli "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/modules/object"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-sdk-go/object"
 	oid "github.com/TrueCloudLab/frostfs-sdk-go/object/id"
 	"github.com/spf13/cobra"
@@ -52,7 +52,7 @@ var listContainerObjectsCmd = &cobra.Command{
 		prmSearch.SetFilters(*filters)
 
 		res, err := internalclient.SearchObjects(prmSearch)
-		common.ExitOnErr(cmd, "rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 		objectIDs := res.IDList()
 

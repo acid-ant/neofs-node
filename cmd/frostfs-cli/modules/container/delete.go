@@ -8,6 +8,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	objectSDK "github.com/TrueCloudLab/frostfs-sdk-go/object"
 	"github.com/TrueCloudLab/frostfs-sdk-go/user"
 	"github.com/spf13/cobra"
@@ -34,7 +35,7 @@ Only owner of the container has a permission to remove container.`,
 			getPrm.SetContainer(id)
 
 			resGet, err := internalclient.GetContainer(getPrm)
-			common.ExitOnErr(cmd, "can't get the container: %w", err)
+			commonCmd.ExitOnErr(cmd, "can't get the container: %w", err)
 
 			owner := resGet.Container().Owner()
 
@@ -42,7 +43,7 @@ Only owner of the container has a permission to remove container.`,
 				common.PrintVerbose(cmd, "Checking session issuer...")
 
 				if !tok.Issuer().Equals(owner) {
-					common.ExitOnErr(cmd, "", fmt.Errorf("session issuer differs with the container owner: expected %s, has %s", owner, tok.Issuer()))
+					commonCmd.ExitOnErr(cmd, "", fmt.Errorf("session issuer differs with the container owner: expected %s, has %s", owner, tok.Issuer()))
 				}
 			} else {
 				common.PrintVerbose(cmd, "Checking provided account...")
@@ -51,7 +52,7 @@ Only owner of the container has a permission to remove container.`,
 				user.IDFromKey(&acc, pk.PublicKey)
 
 				if !acc.Equals(owner) {
-					common.ExitOnErr(cmd, "", fmt.Errorf("provided account differs with the container owner: expected %s, has %s", owner, acc))
+					commonCmd.ExitOnErr(cmd, "", fmt.Errorf("provided account differs with the container owner: expected %s, has %s", owner, acc))
 				}
 			}
 
@@ -72,10 +73,10 @@ Only owner of the container has a permission to remove container.`,
 				common.PrintVerbose(cmd, "Searching for LOCK objects...")
 
 				res, err := internalclient.SearchObjects(searchPrm)
-				common.ExitOnErr(cmd, "can't search for LOCK objects: %w", err)
+				commonCmd.ExitOnErr(cmd, "can't search for LOCK objects: %w", err)
 
 				if len(res.IDList()) != 0 {
-					common.ExitOnErr(cmd, "",
+					commonCmd.ExitOnErr(cmd, "",
 						fmt.Errorf("Container wasn't removed because LOCK objects were found.\n"+
 							"Use --%s flag to remove anyway.", commonflags.ForceFlag))
 				}
@@ -91,7 +92,7 @@ Only owner of the container has a permission to remove container.`,
 		}
 
 		_, err := internalclient.DeleteContainer(delPrm)
-		common.ExitOnErr(cmd, "rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 		cmd.Println("container delete method invoked")
 
@@ -112,7 +113,7 @@ Only owner of the container has a permission to remove container.`,
 				}
 			}
 
-			common.ExitOnErr(cmd, "", errDeleteTimeout)
+			commonCmd.ExitOnErr(cmd, "", errDeleteTimeout)
 		}
 	},
 }

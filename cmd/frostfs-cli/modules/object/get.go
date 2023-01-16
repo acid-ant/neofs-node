@@ -7,9 +7,9 @@ import (
 	"os"
 
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	"github.com/TrueCloudLab/frostfs-sdk-go/object"
 	oid "github.com/TrueCloudLab/frostfs-sdk-go/object/id"
@@ -55,7 +55,7 @@ func getObject(cmd *cobra.Command, _ []string) {
 	} else {
 		f, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 		if err != nil {
-			common.ExitOnErr(cmd, "", fmt.Errorf("can't open file '%s': %w", filename, err))
+			commonCmd.ExitOnErr(cmd, "", fmt.Errorf("can't open file '%s': %w", filename, err))
 		}
 
 		defer f.Close()
@@ -110,7 +110,7 @@ func getObject(cmd *cobra.Command, _ []string) {
 			return
 		}
 
-		common.ExitOnErr(cmd, "rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 	}
 
 	if binary {
@@ -118,9 +118,9 @@ func getObject(cmd *cobra.Command, _ []string) {
 		// TODO(@acid-ant): #1932 Use streams to marshal/unmarshal payload
 		objToStore.SetPayload(payloadBuffer.Bytes())
 		objBytes, err := objToStore.Marshal()
-		common.ExitOnErr(cmd, "", err)
+		commonCmd.ExitOnErr(cmd, "", err)
 		_, err = out.Write(objBytes)
-		common.ExitOnErr(cmd, "unable to write binary object in out: %w ", err)
+		commonCmd.ExitOnErr(cmd, "unable to write binary object in out: %w ", err)
 	}
 
 	if filename != "" && !strictOutput(cmd) {
@@ -130,7 +130,7 @@ func getObject(cmd *cobra.Command, _ []string) {
 	// Print header only if file is not streamed to stdout.
 	if filename != "" {
 		err = printHeader(cmd, res.Header())
-		common.ExitOnErr(cmd, "", err)
+		commonCmd.ExitOnErr(cmd, "", err)
 	}
 }
 

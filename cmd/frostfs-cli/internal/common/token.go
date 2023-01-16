@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-sdk-go/bearer"
 	"github.com/spf13/cobra"
 )
@@ -13,7 +14,7 @@ import (
 // ReadBearerToken reads bearer token from the path provided in a specified flag.
 func ReadBearerToken(cmd *cobra.Command, flagname string) *bearer.Token {
 	path, err := cmd.Flags().GetString(flagname)
-	ExitOnErr(cmd, "", err)
+	commonCmd.ExitOnErr(cmd, "", err)
 
 	if len(path) == 0 {
 		return nil
@@ -24,7 +25,7 @@ func ReadBearerToken(cmd *cobra.Command, flagname string) *bearer.Token {
 	var tok bearer.Token
 
 	err = ReadBinaryOrJSON(cmd, &tok, path)
-	ExitOnErr(cmd, "invalid bearer token: %v", err)
+	commonCmd.ExitOnErr(cmd, "invalid bearer token: %v", err)
 
 	return &tok
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-sdk-go/container"
 	"github.com/TrueCloudLab/frostfs-sdk-go/container/acl"
 	"github.com/TrueCloudLab/frostfs-sdk-go/netmap"
@@ -37,7 +38,7 @@ var createContainerCmd = &cobra.Command{
 It will be stored in sidechain when inner ring will accepts it.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		placementPolicy, err := parseContainerPolicy(cmd, containerPolicy)
-		common.ExitOnErr(cmd, "", err)
+		commonCmd.ExitOnErr(cmd, "", err)
 
 		key := key.Get(cmd)
 		cli := internalclient.GetSDKClientByFlag(cmd, key, commonflags.RPC)
@@ -47,16 +48,16 @@ It will be stored in sidechain when inner ring will accepts it.`,
 			prm.SetClient(cli)
 
 			resmap, err := internalclient.NetMapSnapshot(prm)
-			common.ExitOnErr(cmd, "unable to get netmap snapshot to validate container placement, "+
+			commonCmd.ExitOnErr(cmd, "unable to get netmap snapshot to validate container placement, "+
 				"use --force option to skip this check: %w", err)
 
 			nodesByRep, err := resmap.NetMap().ContainerNodes(*placementPolicy, nil)
-			common.ExitOnErr(cmd, "could not build container nodes based on given placement policy, "+
+			commonCmd.ExitOnErr(cmd, "could not build container nodes based on given placement policy, "+
 				"use --force option to skip this check: %w", err)
 
 			for i, nodes := range nodesByRep {
 				if placementPolicy.ReplicaNumberByIndex(i) > uint32(len(nodes)) {
-					common.ExitOnErr(cmd, "", fmt.Errorf(
+					commonCmd.ExitOnErr(cmd, "", fmt.Errorf(
 						"the number of nodes '%d' in selector is not enough for the number of replicas '%d', "+
 							"use --force option to skip this check",
 						len(nodes),
@@ -70,7 +71,7 @@ It will be stored in sidechain when inner ring will accepts it.`,
 			var subnetID subnetid.ID
 
 			err = subnetID.DecodeString(containerSubnet)
-			common.ExitOnErr(cmd, "could not parse subnetID: %w", err)
+			commonCmd.ExitOnErr(cmd, "could not parse subnetID: %w", err)
 
 			placementPolicy.RestrictSubnet(subnetID)
 		}
@@ -79,10 +80,10 @@ It will be stored in sidechain when inner ring will accepts it.`,
 		cnr.Init()
 
 		err = parseAttributes(&cnr, containerAttributes)
-		common.ExitOnErr(cmd, "", err)
+		commonCmd.ExitOnErr(cmd, "", err)
 
 		var basicACL acl.Basic
-		common.ExitOnErr(cmd, "decode basic ACL string: %w", basicACL.DecodeString(containerACL))
+		commonCmd.ExitOnErr(cmd, "decode basic ACL string: %w", basicACL.DecodeString(containerACL))
 
 		tok := getSession(cmd)
 
@@ -104,7 +105,7 @@ It will be stored in sidechain when inner ring will accepts it.`,
 		syncContainerPrm.SetContainer(&cnr)
 
 		_, err = internalclient.SyncContainerSettings(syncContainerPrm)
-		common.ExitOnErr(cmd, "syncing container's settings rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "syncing container's settings rpc error: %w", err)
 
 		var putPrm internalclient.PutContainerPrm
 		putPrm.SetClient(cli)
@@ -115,7 +116,7 @@ It will be stored in sidechain when inner ring will accepts it.`,
 		}
 
 		res, err := internalclient.PutContainer(putPrm)
-		common.ExitOnErr(cmd, "put container rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "put container rpc error: %w", err)
 
 		id := res.ID()
 
@@ -138,7 +139,7 @@ It will be stored in sidechain when inner ring will accepts it.`,
 				}
 			}
 
-			common.ExitOnErr(cmd, "", errCreateTimeout)
+			commonCmd.ExitOnErr(cmd, "", errCreateTimeout)
 		}
 	},
 }

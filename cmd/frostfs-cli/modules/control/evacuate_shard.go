@@ -2,8 +2,8 @@ package control
 
 import (
 	"github.com/TrueCloudLab/frostfs-api-go/v2/rpc/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/services/control"
 	"github.com/spf13/cobra"
 )
@@ -32,7 +32,7 @@ func evacuateShard(cmd *cobra.Command, _ []string) {
 		resp, err = control.EvacuateShard(client, req)
 		return err
 	})
-	common.ExitOnErr(cmd, "rpc error: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 	cmd.Printf("Objects moved: %d\n", resp.GetBody().GetCount())
 

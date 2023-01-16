@@ -2,10 +2,10 @@ package storagegroup
 
 import (
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
 	objectCli "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/modules/object"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	oid "github.com/TrueCloudLab/frostfs-sdk-go/object/id"
 	"github.com/spf13/cobra"
@@ -44,7 +44,7 @@ func delSG(cmd *cobra.Command, _ []string) {
 	prm.SetAddress(addr)
 
 	res, err := internalclient.DeleteObject(prm)
-	common.ExitOnErr(cmd, "rpc error: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 	tombstone := res.Tombstone()
 

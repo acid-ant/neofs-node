@@ -2,8 +2,8 @@ package control
 
 import (
 	rawclient "github.com/TrueCloudLab/frostfs-api-go/v2/rpc/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/services/control"
 	"github.com/spf13/cobra"
 )
@@ -40,7 +40,7 @@ var dropObjectsCmd = &cobra.Command{
 			resp, err = control.DropObjects(client, req)
 			return err
 		})
-		common.ExitOnErr(cmd, "", err)
+		commonCmd.ExitOnErr(cmd, "", err)
 
 		verifyResponse(cmd, resp.GetSignature(), resp.GetBody())
 

@@ -5,9 +5,9 @@ import (
 	"os"
 
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/network"
 	"github.com/TrueCloudLab/frostfs-sdk-go/client"
 	frostfsecdsa "github.com/TrueCloudLab/frostfs-sdk-go/crypto/ecdsa"
@@ -52,10 +52,10 @@ func createSession(cmd *cobra.Command, _ []string) {
 
 	var netAddr network.Address
 	addrStr, _ := cmd.Flags().GetString(commonflags.RPC)
-	common.ExitOnErr(cmd, "can't parse endpoint: %w", netAddr.FromString(addrStr))
+	commonCmd.ExitOnErr(cmd, "can't parse endpoint: %w", netAddr.FromString(addrStr))
 
 	c, err := internalclient.GetSDKClient(cmd, privKey, netAddr)
-	common.ExitOnErr(cmd, "can't create client: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't create client: %w", err)
 
 	lifetime := uint64(defaultLifetime)
 	if lfArg, _ := cmd.Flags().GetUint64(commonflags.Lifetime); lfArg != 0 {
@@ -65,20 +65,20 @@ func createSession(cmd *cobra.Command, _ []string) {
 	var tok session.Object
 
 	err = CreateSession(&tok, c, lifetime)
-	common.ExitOnErr(cmd, "can't create session: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't create session: %w", err)
 
 	var data []byte
 
 	if toJSON, _ := cmd.Flags().GetBool(jsonFlag); toJSON {
 		data, err = tok.MarshalJSON()
-		common.ExitOnErr(cmd, "can't decode session token JSON: %w", err)
+		commonCmd.ExitOnErr(cmd, "can't decode session token JSON: %w", err)
 	} else {
 		data = tok.Marshal()
 	}
 
 	filename, _ := cmd.Flags().GetString(outFlag)
 	err = os.WriteFile(filename, data, 0644)
-	common.ExitOnErr(cmd, "can't write token to file: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't write token to file: %w", err)
 }
 
 // CreateSession opens a new communication with NeoFS storage node using client connection.

@@ -8,6 +8,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
 	objectCli "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/modules/object"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	oid "github.com/TrueCloudLab/frostfs-sdk-go/object/id"
 	storagegroupSDK "github.com/TrueCloudLab/frostfs-sdk-go/storagegroup"
@@ -57,7 +58,7 @@ func getSG(cmd *cobra.Command, _ []string) {
 	prm.SetPayloadWriter(buf)
 
 	res, err := internalclient.GetObject(prm)
-	common.ExitOnErr(cmd, "rpc error: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 	rawObj := res.Header()
 	rawObj.SetPayload(buf.Bytes())
@@ -65,7 +66,7 @@ func getSG(cmd *cobra.Command, _ []string) {
 	var sg storagegroupSDK.StorageGroup
 
 	err = storagegroupSDK.ReadFromObject(&sg, *rawObj)
-	common.ExitOnErr(cmd, "could not read storage group from the obj: %w", err)
+	commonCmd.ExitOnErr(cmd, "could not read storage group from the obj: %w", err)
 
 	cmd.Printf("The last active epoch: %d\n", sg.ExpirationEpoch())
 	cmd.Printf("Group size: %d\n", sg.ValidationDataSize())

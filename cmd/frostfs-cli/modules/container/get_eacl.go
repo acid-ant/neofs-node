@@ -7,6 +7,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +25,7 @@ var getExtendedACLCmd = &cobra.Command{
 		eaclPrm.SetContainer(id)
 
 		res, err := internalclient.EACL(eaclPrm)
-		common.ExitOnErr(cmd, "rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 		eaclTable := res.EACL()
 
@@ -39,16 +40,16 @@ var getExtendedACLCmd = &cobra.Command{
 
 		if containerJSON {
 			data, err = eaclTable.MarshalJSON()
-			common.ExitOnErr(cmd, "can't encode to JSON: %w", err)
+			commonCmd.ExitOnErr(cmd, "can't encode to JSON: %w", err)
 		} else {
 			data, err = eaclTable.Marshal()
-			common.ExitOnErr(cmd, "can't encode to binary: %w", err)
+			commonCmd.ExitOnErr(cmd, "can't encode to binary: %w", err)
 		}
 
 		cmd.Println("dumping data to file:", containerPathTo)
 
 		err = os.WriteFile(containerPathTo, data, 0644)
-		common.ExitOnErr(cmd, "could not write eACL to file: %w", err)
+		commonCmd.ExitOnErr(cmd, "could not write eACL to file: %w", err)
 	},
 }
 

@@ -11,6 +11,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	"github.com/TrueCloudLab/frostfs-sdk-go/object"
 	oid "github.com/TrueCloudLab/frostfs-sdk-go/object/id"
@@ -70,11 +71,11 @@ func getObjectHeader(cmd *cobra.Command, _ []string) {
 			return
 		}
 
-		common.ExitOnErr(cmd, "rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 	}
 
 	err = saveAndPrintHeader(cmd, res.Header(), cmd.Flag(fileFlag).Value.String())
-	common.ExitOnErr(cmd, "", err)
+	commonCmd.ExitOnErr(cmd, "", err)
 }
 
 func saveAndPrintHeader(cmd *cobra.Command, obj *object.Object, filename string) error {

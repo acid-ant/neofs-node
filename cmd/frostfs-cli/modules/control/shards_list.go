@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	rawclient "github.com/TrueCloudLab/frostfs-api-go/v2/rpc/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/services/control"
 	"github.com/mr-tron/base58"
 	"github.com/spf13/cobra"
@@ -45,7 +45,7 @@ func listShards(cmd *cobra.Command, _ []string) {
 		resp, err = control.ListShards(client, req)
 		return err
 	})
-	common.ExitOnErr(cmd, "rpc error: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 	verifyResponse(cmd, resp.GetSignature(), resp.GetBody())
 
@@ -73,7 +73,7 @@ func prettyPrintShardsJSON(cmd *cobra.Command, ii []*control.ShardInfo) {
 	buf := bytes.NewBuffer(nil)
 	enc := json.NewEncoder(buf)
 	enc.SetIndent("", "  ")
-	common.ExitOnErr(cmd, "cannot shard info to JSON: %w", enc.Encode(out))
+	commonCmd.ExitOnErr(cmd, "cannot shard info to JSON: %w", enc.Encode(out))
 
 	cmd.Print(buf.String()) // pretty printer emits newline, to no need for Println
 }

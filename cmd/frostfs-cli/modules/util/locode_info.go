@@ -1,7 +1,7 @@
 package util
 
 import (
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	locodedb "github.com/TrueCloudLab/frostfs-node/pkg/util/locode/db"
 	locodebolt "github.com/TrueCloudLab/frostfs-node/pkg/util/locode/db/boltdb"
 	"github.com/spf13/cobra"
@@ -25,12 +25,12 @@ var (
 			}, locodebolt.ReadOnly())
 
 			err := targetDB.Open()
-			common.ExitOnErr(cmd, "", err)
+			commonCmd.ExitOnErr(cmd, "", err)
 
 			defer targetDB.Close()
 
 			record, err := locodedb.LocodeRecord(targetDB, locodeInfoCode)
-			common.ExitOnErr(cmd, "", err)
+			commonCmd.ExitOnErr(cmd, "", err)
 
 			cmd.Printf("Country: %s\n", record.CountryName())
 			cmd.Printf("Location: %s\n", record.LocationName())

@@ -5,9 +5,9 @@ import (
 	"errors"
 
 	rawclient "github.com/TrueCloudLab/frostfs-api-go/v2/rpc/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/services/control"
 	controlSvc "github.com/TrueCloudLab/frostfs-node/pkg/services/control/server"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
@@ -40,11 +40,11 @@ func synchronizeTree(cmd *cobra.Command, _ []string) {
 
 	var cnr cid.ID
 	cidStr, _ := cmd.Flags().GetString(commonflags.CIDFlag)
-	common.ExitOnErr(cmd, "can't decode container ID: %w", cnr.DecodeString(cidStr))
+	commonCmd.ExitOnErr(cmd, "can't decode container ID: %w", cnr.DecodeString(cidStr))
 
 	treeID, _ := cmd.Flags().GetString("tree-id")
 	if treeID == "" {
-		common.ExitOnErr(cmd, "", errors.New("tree ID must not be empty"))
+		commonCmd.ExitOnErr(cmd, "", errors.New("tree ID must not be empty"))
 	}
 
 	height, _ := cmd.Flags().GetUint64("height")
@@ -61,7 +61,7 @@ func synchronizeTree(cmd *cobra.Command, _ []string) {
 	}
 
 	err := controlSvc.SignMessage(pk, req)
-	common.ExitOnErr(cmd, "could not sign request: %w", err)
+	commonCmd.ExitOnErr(cmd, "could not sign request: %w", err)
 
 	cli := getClient(cmd, pk)
 
@@ -70,7 +70,7 @@ func synchronizeTree(cmd *cobra.Command, _ []string) {
 		resp, err = control.SynchronizeTree(client, req)
 		return err
 	})
-	common.ExitOnErr(cmd, "rpc error: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 	verifyResponse(cmd, resp.GetSignature(), resp.GetBody())
 

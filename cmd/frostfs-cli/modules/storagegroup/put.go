@@ -6,10 +6,10 @@ import (
 	"fmt"
 
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
 	objectCli "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/modules/object"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/pkg/services/object_manager/storagegroup"
 	"github.com/TrueCloudLab/frostfs-sdk-go/container"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
@@ -60,10 +60,10 @@ func putSG(cmd *cobra.Command, _ []string) {
 
 	for i := range sgMembers {
 		err := members[i].DecodeString(sgMembers[i])
-		common.ExitOnErr(cmd, "could not parse object ID: %w", err)
+		commonCmd.ExitOnErr(cmd, "could not parse object ID: %w", err)
 
 		if _, alreadyExists := uniqueFilter[members[i]]; alreadyExists {
-			common.ExitOnErr(cmd, "", fmt.Errorf("%s member in not unique", members[i]))
+			commonCmd.ExitOnErr(cmd, "", fmt.Errorf("%s member in not unique", members[i]))
 		}
 
 		uniqueFilter[members[i]] = struct{}{}
@@ -80,7 +80,7 @@ func putSG(cmd *cobra.Command, _ []string) {
 	getCnrPrm.SetContainer(cnr)
 
 	resGetCnr, err := internalclient.GetContainer(getCnrPrm)
-	common.ExitOnErr(cmd, "get container RPC call: %w", err)
+	commonCmd.ExitOnErr(cmd, "get container RPC call: %w", err)
 
 	objectCli.OpenSessionViaClient(cmd, &putPrm, cli, pk, cnr, nil)
 	objectCli.Prepare(cmd, &headPrm, &putPrm)
@@ -94,13 +94,13 @@ func putSG(cmd *cobra.Command, _ []string) {
 		ownerID: &ownerID,
 		prm:     headPrm,
 	}, cnr, members, !container.IsHomomorphicHashingDisabled(resGetCnr.Container()))
-	common.ExitOnErr(cmd, "could not collect storage group members: %w", err)
+	commonCmd.ExitOnErr(cmd, "could not collect storage group members: %w", err)
 
 	var netInfoPrm internalclient.NetworkInfoPrm
 	netInfoPrm.SetClient(cli)
 
 	ni, err := internalclient.NetworkInfo(netInfoPrm)
-	common.ExitOnErr(cmd, "can't fetch network info: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't fetch network info: %w", err)
 
 	lifetime, _ := cmd.Flags().GetUint64(commonflags.Lifetime)
 	sg.SetExpirationEpoch(ni.NetworkInfo().CurrentEpoch() + lifetime)
@@ -114,7 +114,7 @@ func putSG(cmd *cobra.Command, _ []string) {
 	putPrm.SetHeader(obj)
 
 	res, err := internalclient.PutObject(putPrm)
-	common.ExitOnErr(cmd, "rpc error: %w", err)
+	commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 	cmd.Println("Storage group successfully stored")
 	cmd.Printf("  ID: %s\n  CID: %s\n", res.ID(), cnr)

@@ -39,11 +39,11 @@ func PrettyPrintNodeInfo(cmd *cobra.Command, node netmap.NodeInfo,
 }
 
 // PrettyPrintNetMap print information about network map.
-func PrettyPrintNetMap(cmd *cobra.Command, nm netmap.NetMap) {
+func PrettyPrintNetMap(cmd *cobra.Command, nm netmap.NetMap, short bool) {
 	cmd.Println("Epoch:", nm.Epoch())
 
 	nodes := nm.Nodes()
 	for i := range nodes {
-		PrettyPrintNodeInfo(cmd, nodes[i], i, "", false)
+		PrettyPrintNodeInfo(cmd, nodes[i], i, "", short)
 	}
 }

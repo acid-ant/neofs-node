@@ -10,6 +10,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-sdk-go/session"
 	"github.com/spf13/cobra"
 )
@@ -34,10 +35,10 @@ func initSignSessionCmd() {
 
 func signSessionToken(cmd *cobra.Command, _ []string) {
 	fPath, err := cmd.Flags().GetString(signFromFlag)
-	common.ExitOnErr(cmd, "", err)
+	commonCmd.ExitOnErr(cmd, "", err)
 
 	if fPath == "" {
-		common.ExitOnErr(cmd, "", errors.New("missing session token flag"))
+		commonCmd.ExitOnErr(cmd, "", errors.New("missing session token flag"))
 	}
 
 	type iTokenSession interface {
@@ -59,15 +60,15 @@ func signSessionToken(cmd *cobra.Command, _ []string) {
 		}
 	}
 
-	common.ExitOnErr(cmd, "decode session: %v", errLast)
+	commonCmd.ExitOnErr(cmd, "decode session: %v", errLast)
 
 	pk := key.GetOrGenerate(cmd)
 
 	err = stok.Sign(*pk)
-	common.ExitOnErr(cmd, "can't sign token: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't sign token: %w", err)
 
 	data, err := stok.MarshalJSON()
-	common.ExitOnErr(cmd, "can't encode session token: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't encode session token: %w", err)
 
 	to := cmd.Flag(signToFlag).Value.String()
 	if len(to) == 0 {
@@ -77,7 +78,7 @@ func signSessionToken(cmd *cobra.Command, _ []string) {
 
 	err = os.WriteFile(to, data, 0644)
 	if err != nil {
-		common.ExitOnErr(cmd, "", fmt.Errorf("can't write signed session token to %s: %w", to, err))
+		commonCmd.ExitOnErr(cmd, "", fmt.Errorf("can't write signed session token to %s: %w", to, err))
 	}
 
 	cmd.Printf("signed session token saved in %s\n", to)

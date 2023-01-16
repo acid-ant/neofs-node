@@ -10,6 +10,7 @@ import (
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-sdk-go/bearer"
 	eaclSDK "github.com/TrueCloudLab/frostfs-sdk-go/eacl"
 	"github.com/TrueCloudLab/frostfs-sdk-go/user"
@@ -58,13 +59,13 @@ func init() {
 
 func createToken(cmd *cobra.Command, _ []string) {
 	iat, iatRelative, err := common.ParseEpoch(cmd, issuedAtFlag)
-	common.ExitOnErr(cmd, "can't parse --"+issuedAtFlag+" flag: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't parse --"+issuedAtFlag+" flag: %w", err)
 
 	exp, expRelative, err := common.ParseEpoch(cmd, commonflags.ExpireAt)
-	common.ExitOnErr(cmd, "can't parse --"+commonflags.ExpireAt+" flag: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't parse --"+commonflags.ExpireAt+" flag: %w", err)
 
 	nvb, nvbRelative, err := common.ParseEpoch(cmd, notValidBeforeFlag)
-	common.ExitOnErr(cmd, "can't parse --"+notValidBeforeFlag+" flag: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't parse --"+notValidBeforeFlag+" flag: %w", err)
 
 	if iatRelative || expRelative || nvbRelative {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
@@ -72,7 +73,7 @@ func createToken(cmd *cobra.Command, _ []string) {
 
 		endpoint, _ := cmd.Flags().GetString(commonflags.RPC)
 		currEpoch, err := internalclient.GetCurrentEpoch(ctx, cmd, endpoint)
-		common.ExitOnErr(cmd, "can't fetch current epoch: %w", err)
+		commonCmd.ExitOnErr(cmd, "can't fetch current epoch: %w", err)
 
 		if iatRelative {
 			iat += currEpoch
@@ -85,14 +86,14 @@ func createToken(cmd *cobra.Command, _ []string) {
 		}
 	}
 	if exp < nvb {
-		common.ExitOnErr(cmd, "",
+		commonCmd.ExitOnErr(cmd, "",
 			fmt.Errorf("expiration epoch is less than not-valid-before epoch: %d < %d", exp, nvb))
 	}
 
 	ownerStr, _ := cmd.Flags().GetString(ownerFlag)
 
 	var ownerID user.ID
-	common.ExitOnErr(cmd, "can't parse recipient: %w", ownerID.DecodeString(ownerStr))
+	commonCmd.ExitOnErr(cmd, "can't parse recipient: %w", ownerID.DecodeString(ownerStr))
 
 	var b bearer.Token
 	b.SetExp(exp)
@@ -104,8 +105,8 @@ func createToken(cmd *cobra.Command, _ []string) {
 	if eaclPath != "" {
 		table := eaclSDK.NewTable()
 		raw, err := os.ReadFile(eaclPath)
-		common.ExitOnErr(cmd, "can't read extended ACL file: %w", err)
-		common.ExitOnErr(cmd, "can't parse extended ACL: %w", json.Unmarshal(raw, table))
+		commonCmd.ExitOnErr(cmd, "can't read extended ACL file: %w", err)
+		commonCmd.ExitOnErr(cmd, "can't parse extended ACL: %w", json.Unmarshal(raw, table))
 		b.SetEACLTable(*table)
 	}
 
@@ -114,12 +115,12 @@ func createToken(cmd *cobra.Command, _ []string) {
 	toJSON, _ := cmd.Flags().GetBool(jsonFlag)
 	if toJSON {
 		data, err = json.Marshal(b)
-		common.ExitOnErr(cmd, "can't mashal token to JSON: %w", err)
+		commonCmd.ExitOnErr(cmd, "can't mashal token to JSON: %w", err)
 	} else {
 		data = b.Marshal()
 	}
 
 	out, _ := cmd.Flags().GetString(outFlag)
 	err = os.WriteFile(out, data, 0644)
-	common.ExitOnErr(cmd, "can't write token to file: %w", err)
+	commonCmd.ExitOnErr(cmd, "can't write token to file: %w", err)
 }

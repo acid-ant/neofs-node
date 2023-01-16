@@ -17,6 +17,7 @@ import (
 	sgCli "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/modules/storagegroup"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/modules/tree"
 	utilCli "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/modules/util"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/misc"
 	"github.com/TrueCloudLab/frostfs-node/pkg/util/gendoc"
 	"github.com/mitchellh/go-homedir"
@@ -50,7 +51,7 @@ and much more!`,
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
-	common.ExitOnErr(rootCmd, "", err)
+	commonCmd.ExitOnErr(rootCmd, "", err)
 }
 
 func init() {
@@ -105,7 +106,7 @@ func initConfig() {
 	} else {
 		// Find home directory.
 		home, err := homedir.Dir()
-		common.ExitOnErr(rootCmd, "", err)
+		commonCmd.ExitOnErr(rootCmd, "", err)
 
 		// Search config in `$HOME/.config/frostfs-cli/` with name "config.yaml"
 		viper.AddConfigPath(filepath.Join(home, ".config", "frostfs-cli"))

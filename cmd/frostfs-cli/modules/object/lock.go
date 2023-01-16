@@ -12,6 +12,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	objectSDK "github.com/TrueCloudLab/frostfs-sdk-go/object"
 	oid "github.com/TrueCloudLab/frostfs-sdk-go/object/id"
@@ -29,7 +30,7 @@ var objectLockCmd = &cobra.Command{
 
 		var cnr cid.ID
 		err := cnr.DecodeString(cidRaw)
-		common.ExitOnErr(cmd, "Incorrect container arg: %v", err)
+		commonCmd.ExitOnErr(cmd, "Incorrect container arg: %v", err)
 
 		oidsRaw, _ := cmd.Flags().GetStringSlice(commonflags.OIDFlag)
 
@@ -37,7 +38,7 @@ var objectLockCmd = &cobra.Command{
 
 		for i := range oidsRaw {
 			err = lockList[i].DecodeString(oidsRaw[i])
-			common.ExitOnErr(cmd, fmt.Sprintf("Incorrect object arg #%d: %%v", i+1), err)
+			commonCmd.ExitOnErr(cmd, fmt.Sprintf("Incorrect object arg #%d: %%v", i+1), err)
 		}
 
 		key := key.GetOrGenerate(cmd)
@@ -51,7 +52,7 @@ var objectLockCmd = &cobra.Command{
 		exp, _ := cmd.Flags().GetUint64(commonflags.ExpireAt)
 		lifetime, _ := cmd.Flags().GetUint64(commonflags.Lifetime)
 		if exp == 0 && lifetime == 0 { // mutual exclusion is ensured by cobra
-			common.ExitOnErr(cmd, "", errors.New("either expiration epoch of a lifetime is required"))
+			commonCmd.ExitOnErr(cmd, "", errors.New("either expiration epoch of a lifetime is required"))
 		}
 
 		if lifetime != 0 {
@@ -61,7 +62,7 @@ var objectLockCmd = &cobra.Command{
 			endpoint, _ := cmd.Flags().GetString(commonflags.RPC)
 
 			currEpoch, err := internalclient.GetCurrentEpoch(ctx, cmd, endpoint)
-			common.ExitOnErr(cmd, "Request current epoch: %w", err)
+			commonCmd.ExitOnErr(cmd, "Request current epoch: %w", err)
 
 			exp = currEpoch + lifetime
 		}
@@ -85,7 +86,7 @@ var objectLockCmd = &cobra.Command{
 		prm.SetHeader(obj)
 
 		res, err := internalclient.PutObject(prm)
-		common.ExitOnErr(cmd, "Store lock object in NeoFS: %w", err)
+		commonCmd.ExitOnErr(cmd, "Store lock object in NeoFS: %w", err)
 
 		cmd.Printf("Lock object ID: %s\n", res.ID())
 		cmd.Println("Objects successfully locked.")

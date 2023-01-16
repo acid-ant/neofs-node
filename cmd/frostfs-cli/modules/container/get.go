@@ -9,6 +9,7 @@ import (
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/modules/util"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/TrueCloudLab/frostfs-sdk-go/container"
 	"github.com/TrueCloudLab/frostfs-sdk-go/container/acl"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
@@ -44,13 +45,13 @@ var getContainerInfoCmd = &cobra.Command{
 
 			if containerJSON {
 				data, err = cnr.MarshalJSON()
-				common.ExitOnErr(cmd, "can't JSON encode container: %w", err)
+				commonCmd.ExitOnErr(cmd, "can't JSON encode container: %w", err)
 			} else {
 				data = cnr.Marshal()
 			}
 
 			err = os.WriteFile(containerPathTo, data, 0644)
-			common.ExitOnErr(cmd, "can't write container to file: %w", err)
+			commonCmd.ExitOnErr(cmd, "can't write container to file: %w", err)
 		}
 	},
 }
@@ -96,7 +97,7 @@ func prettyPrintContainer(cmd *cobra.Command, cnr container.Container, jsonEncod
 	})
 
 	cmd.Println("placement policy:")
-	common.ExitOnErr(cmd, "write policy: %w", cnr.PlacementPolicy().WriteStringTo((*stringWriter)(cmd)))
+	commonCmd.ExitOnErr(cmd, "write policy: %w", cnr.PlacementPolicy().WriteStringTo((*stringWriter)(cmd)))
 	cmd.Println()
 }
 
@@ -137,10 +138,10 @@ func getContainer(cmd *cobra.Command) (container.Container, *ecdsa.PrivateKey) {
 	var pk *ecdsa.PrivateKey
 	if containerPathFrom != "" {
 		data, err := os.ReadFile(containerPathFrom)
-		common.ExitOnErr(cmd, "can't read file: %w", err)
+		commonCmd.ExitOnErr(cmd, "can't read file: %w", err)
 
 		err = cnr.Unmarshal(data)
-		common.ExitOnErr(cmd, "can't unmarshal container: %w", err)
+		commonCmd.ExitOnErr(cmd, "can't unmarshal container: %w", err)
 	} else {
 		id := parseContainerID(cmd)
 		pk = key.GetOrGenerate(cmd)
@@ -151,7 +152,7 @@ func getContainer(cmd *cobra.Command) (container.Container, *ecdsa.PrivateKey) {
 		prm.SetContainer(id)
 
 		res, err := internalclient.GetContainer(prm)
-		common.ExitOnErr(cmd, "rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 		cnr = res.Container()
 	}

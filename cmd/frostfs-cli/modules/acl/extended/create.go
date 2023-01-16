@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/modules/util"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	cid "github.com/TrueCloudLab/frostfs-sdk-go/container/id"
 	"github.com/TrueCloudLab/frostfs-sdk-go/eacl"
 	"github.com/spf13/cobra"
@@ -84,7 +84,7 @@ func createEACL(cmd *cobra.Command, _ []string) {
 	}
 
 	tb := eacl.NewTable()
-	common.ExitOnErr(cmd, "unable to parse provided rules: %w", util.ParseEACLRules(tb, rules))
+	commonCmd.ExitOnErr(cmd, "unable to parse provided rules: %w", util.ParseEACLRules(tb, rules))
 
 	tb.SetCID(containerID)
 

@@ -5,9 +5,9 @@ import (
 	"time"
 
 	internalclient "github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/client"
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/key"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	"github.com/nspcc-dev/neo-go/pkg/config/netmode"
 	"github.com/spf13/cobra"
 )
@@ -24,7 +24,7 @@ var netInfoCmd = &cobra.Command{
 		prm.SetClient(cli)
 
 		res, err := internalclient.NetworkInfo(prm)
-		common.ExitOnErr(cmd, "rpc error: %w", err)
+		commonCmd.ExitOnErr(cmd, "rpc error: %w", err)
 
 		netInfo := res.NetworkInfo()
 

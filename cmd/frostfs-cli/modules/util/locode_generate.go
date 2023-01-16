@@ -1,7 +1,7 @@
 package util
 
 import (
-	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-cli/internal/common"
+	commonCmd "github.com/TrueCloudLab/frostfs-node/cmd/internal/common"
 	locodedb "github.com/TrueCloudLab/frostfs-node/pkg/util/locode/db"
 	airportsdb "github.com/TrueCloudLab/frostfs-node/pkg/util/locode/db/airports"
 	locodebolt "github.com/TrueCloudLab/frostfs-node/pkg/util/locode/db/boltdb"
@@ -58,7 +58,7 @@ var (
 			})
 
 			err := targetDB.Open()
-			common.ExitOnErr(cmd, "", err)
+			commonCmd.ExitOnErr(cmd, "", err)
 
 			defer targetDB.Close()
 
@@ -68,7 +68,7 @@ var (
 			}
 
 			err = locodedb.FillDatabase(locodeDB, airportDB, continentsDB, names, targetDB)
-			common.ExitOnErr(cmd, "", err)
+			commonCmd.ExitOnErr(cmd, "", err)
 		},
 	}
 )
