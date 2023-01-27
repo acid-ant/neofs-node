@@ -14,7 +14,7 @@ func (c *Client) Close() {
 	// closing should be done via the channel
 	// to prevent switching to another RPC node
 	// in the notification loop
-	c.closeChan <- struct{}{}
+	close(c.closeChan)
 }
 
 // SubscribeForExecutionNotifications adds subscription for notifications
