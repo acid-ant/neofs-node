@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-node/config"
 	"github.com/TrueCloudLab/frostfs-node/misc"
@@ -66,10 +64,6 @@ func main() {
 	c.setHealthStatus(control.HealthStatus_READY)
 
 	wait(c)
-
-	c.setHealthStatus(control.HealthStatus_SHUTTING_DOWN)
-
-	shutdown(c)
 }
 
 func initAndLog(c *cfg, name string, initializer func(*cfg)) {
@@ -79,9 +73,18 @@ func initAndLog(c *cfg, name string, initializer func(*cfg)) {
 }
 
 func initApp(c *cfg) {
-	initLocalStorage(c)
+	c.ctx, c.ctxCancel = context.WithCancel(context.Background())
 
-	c.ctx, c.ctxCancel = signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	c.wg.Add(1)
+	go func() {
+		c.signalWatcher()
+		c.wg.Done()
+	}()
+
+	initAndLog(c, "pprof", initProfiler)
+	initAndLog(c, "prometheus", initMetrics)
+
+	initLocalStorage(c)
 
 	initAndLog(c, "storage engine", func(c *cfg) {
 		fatalOnErr(c.cfgObject.cfgLocalStorage.localStorage.Open())
@@ -96,14 +99,10 @@ func initApp(c *cfg) {
 	initAndLog(c, "reputation", initReputationService)
 	initAndLog(c, "notification", initNotifications)
 	initAndLog(c, "object", initObjectService)
-	initAndLog(c, "pprof", initProfiler)
-	initAndLog(c, "prometheus", initMetrics)
 	initAndLog(c, "tree", initTreeService)
 	initAndLog(c, "control", initControlService)
 
 	initAndLog(c, "morph notifications", listenMorphNotifications)
-
-	c.workers = append(c.workers, newWorkerFromFunc(c.configWatcher))
 }
 
 func runAndLog(c *cfg, name string, logSuccess bool, starter func(*cfg)) {
@@ -128,21 +127,7 @@ func wait(c *cfg) {
 	c.log.Info("application started",
 		zap.String("version", misc.Version))
 
-	select {
-	case <-c.ctx.Done(): // graceful shutdown
-	case err := <-c.internalErr: // internal application error
-		close(c.internalErr)
-		c.ctxCancel()
-
-		c.log.Warn("internal application error",
-			zap.String("message", err.Error()))
-	}
-}
-
-func shutdown(c *cfg) {
-	for _, closer := range c.closers {
-		closer()
-	}
+	<-c.ctx.Done() // graceful shutdown
 
 	c.log.Debug("waiting for all processes to stop")
 

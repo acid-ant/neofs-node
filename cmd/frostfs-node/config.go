@@ -911,60 +911,91 @@ type dCfg struct {
 	}
 }
 
-func (c *cfg) configWatcher(ctx context.Context) {
+func (c *cfg) signalWatcher() {
 	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGHUP)
+	signal.Notify(ch, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
 
 	for {
 		select {
-		case <-ch:
-			c.log.Info("SIGHUP has been received, rereading configuration...")
+		case sig := <-ch:
+			switch sig {
+			case syscall.SIGHUP:
+				c.reloadConfig()
+			case syscall.SIGTERM, syscall.SIGINT:
+				c.log.Info("termination signal has been received, stopping...")
+				// TODO (@acid-ant): #49 need to cover case when stuck at the middle(node health UNDEFINED or STARTING)
 
-			err := c.readConfig(c.appCfg)
-			if err != nil {
-				c.log.Error("configuration reading", zap.Error(err))
-				continue
+				c.shutdown()
+
+				c.log.Info("termination signal processing is complete")
+				return
 			}
+		case err := <-c.internalErr: // internal application error
+			c.log.Warn("internal application error",
+				zap.String("message", err.Error()))
 
-			// all the components are expected to support
-			// Logger's dynamic reconfiguration approach
-			var components []dCfg
+			c.shutdown()
 
-			// Logger
-
-			logPrm, err := c.loggerPrm()
-			if err != nil {
-				c.log.Error("logger configuration preparation", zap.Error(err))
-				continue
-			}
-
-			components = append(components, dCfg{name: "logger", cfg: logPrm})
-
-			// Storage Engine
-
-			var rcfg engine.ReConfiguration
-			for _, optsWithID := range c.shardOpts() {
-				rcfg.AddShard(optsWithID.configID, optsWithID.shOpts)
-			}
-
-			err = c.cfgObject.cfgLocalStorage.localStorage.Reload(rcfg)
-			if err != nil {
-				c.log.Error("storage engine configuration update", zap.Error(err))
-				continue
-			}
-
-			for _, component := range components {
-				err = component.cfg.Reload()
-				if err != nil {
-					c.log.Error("updated configuration applying",
-						zap.String("component", component.name),
-						zap.Error(err))
-				}
-			}
-
-			c.log.Info("configuration has been reloaded successfully")
-		case <-ctx.Done():
+			c.log.Info("internal error processing is complete")
 			return
 		}
 	}
+}
+
+func (c *cfg) reloadConfig() {
+	c.log.Info("SIGHUP has been received, rereading configuration...")
+
+	err := c.readConfig(c.appCfg)
+	if err != nil {
+		c.log.Error("configuration reading", zap.Error(err))
+		return
+	}
+
+	// all the components are expected to support
+	// Logger's dynamic reconfiguration approach
+	var components []dCfg
+
+	// Logger
+
+	logPrm, err := c.loggerPrm()
+	if err != nil {
+		c.log.Error("logger configuration preparation", zap.Error(err))
+		return
+	}
+
+	components = append(components, dCfg{name: "logger", cfg: logPrm})
+
+	// Storage Engine
+
+	var rcfg engine.ReConfiguration
+	for _, optsWithID := range c.shardOpts() {
+		rcfg.AddShard(optsWithID.configID, optsWithID.shOpts)
+	}
+
+	err = c.cfgObject.cfgLocalStorage.localStorage.Reload(rcfg)
+	if err != nil {
+		c.log.Error("storage engine configuration update", zap.Error(err))
+		return
+	}
+
+	for _, component := range components {
+		err = component.cfg.Reload()
+		if err != nil {
+			c.log.Error("updated configuration applying",
+				zap.String("component", component.name),
+				zap.Error(err))
+		}
+	}
+
+	c.log.Info("configuration has been reloaded successfully")
+}
+
+func (c *cfg) shutdown() {
+	c.setHealthStatus(control.HealthStatus_SHUTTING_DOWN)
+
+	c.ctxCancel()
+	for i := range c.closers {
+		c.closers[len(c.closers)-1-i]()
+	}
+	close(c.internalErr)
 }

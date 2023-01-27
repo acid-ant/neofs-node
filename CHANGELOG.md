@@ -25,6 +25,7 @@ Changelog for FrostFS Node
 - Correct status error for expired session token (#2207)
 - Set flag `mode` required for `frostfs-cli control shards set-mode` (#8)
 - Fix `dirty` suffix in debian package version (#53)
+- Prevent node process from killing by systemd when shutting down (#1465)
 
 ### Removed
 ### Updated

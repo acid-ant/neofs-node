@@ -126,7 +126,20 @@ func (c *Client) notificationLoop() {
 				continue
 			}
 
-			c.notifications <- n
+			select {
+			case c.notifications <- n:
+				continue
+			case <-c.cfg.ctx.Done():
+				_ = c.UnsubscribeAll()
+				c.close()
+
+				return
+			case <-c.closeChan:
+				_ = c.UnsubscribeAll()
+				c.close()
+
+				return
+			}
 		}
 	}
 }
