@@ -8,6 +8,7 @@ Changelog for FrostFS Node
 - Doc for extended headers (#2128)
 - New `frostfs_node_object_container_size` metric for tracking size of reqular objects in a container (#2116)
 - New `frostfs_node_object_payload_size` metric for tracking size of reqular objects on a single shard (#1794)
+- Add command `frostfs-adm morph netmap-candidates` (#1889)
 
 ### Changed
 - `common.PrintVerbose` prints via `cobra.Command.Printf` (#1962)

@@ -34,6 +34,8 @@ func init() {
 	rootCmd.SetOut(os.Stdout)
 
 	rootCmd.PersistentFlags().StringP(commonflags.ConfigFlag, commonflags.ConfigFlagShorthand, "", commonflags.ConfigFlagUsage)
+	rootCmd.PersistentFlags().BoolP(commonflags.Verbose, commonflags.VerboseShorthand, false, commonflags.VerboseUsage)
+	_ = viper.BindPFlag(commonflags.Verbose, rootCmd.PersistentFlags().Lookup(commonflags.Verbose))
 	rootCmd.Flags().Bool("version", false, "Application version")
 
 	rootCmd.AddCommand(config.RootCmd)
