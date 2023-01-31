@@ -3,6 +3,7 @@ package modules
 import (
 	"os"
 
+	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-adm/internal/commonflags"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-adm/internal/modules/config"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-adm/internal/modules/morph"
 	"github.com/TrueCloudLab/frostfs-node/cmd/frostfs-adm/internal/modules/storagecfg"
@@ -22,8 +23,6 @@ manage FrostFS network deployment.`,
 		RunE:         entryPoint,
 		SilenceUsage: true,
 	}
-
-	configFlag = "config"
 )
 
 func init() {
@@ -34,7 +33,7 @@ func init() {
 	// use stdout as default output for cmd.Print()
 	rootCmd.SetOut(os.Stdout)
 
-	rootCmd.PersistentFlags().StringP(configFlag, "c", "", "Config file")
+	rootCmd.PersistentFlags().StringP(commonflags.ConfigFlag, commonflags.ConfigFlagShorthand, "", commonflags.ConfigFlagUsage)
 	rootCmd.Flags().Bool("version", false, "Application version")
 
 	rootCmd.AddCommand(config.RootCmd)
@@ -60,7 +59,7 @@ func entryPoint(cmd *cobra.Command, args []string) error {
 }
 
 func initConfig(cmd *cobra.Command) {
-	configFile, err := cmd.Flags().GetString(configFlag)
+	configFile, err := cmd.Flags().GetString(commonflags.ConfigFlag)
 	if err != nil || configFile == "" {
 		return
 	}
