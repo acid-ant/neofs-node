@@ -93,6 +93,7 @@ func initControlSetShardModeCmd() {
 	flags.String(shardModeFlag, "",
 		fmt.Sprintf("New shard mode (%s)", strings.Join(modes, ", ")),
 	)
+	_ = setShardModeCmd.MarkFlagRequired(shardModeFlag)
 	flags.Bool(shardClearErrorsFlag, false, "Set shard error count to 0")
 
 	setShardModeCmd.MarkFlagsMutuallyExclusive(shardIDFlag, shardAllFlag)
