@@ -56,7 +56,10 @@ func initMorphComponents(c *cfg) {
 		fatalOnErr(err)
 	}
 
-	c.onShutdown(cli.Close)
+	c.onShutdown(func() {
+		c.log.Info("closing morph components...")
+		cli.Close()
+	})
 
 	if err := cli.SetGroupSignerScope(); err != nil {
 		c.log.Info("failed to set group signer scope, continue with Global", zap.Error(err))
