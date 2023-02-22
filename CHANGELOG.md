@@ -12,6 +12,7 @@ Changelog for FrostFS Node
 - `object.delete.tombstone_lifetime` config parameter to set tombstone lifetime in the DELETE service (#2246)
 - Reload config for pprof and metrics on SIGHUP in `neofs-node` (#1868)
 - Multiple configs support (#44)
+- Parameters `nns-name` and `nns-zone` for command `frostfs-cli container create` (#37)
 
 ### Changed
 - Change `frostfs_node_engine_container_size` to counting sizes of logical objects
