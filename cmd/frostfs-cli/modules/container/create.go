@@ -26,6 +26,8 @@ var (
 	containerAttributes  []string
 	containerAwait       bool
 	containerName        string
+	containerNnsName     string
+	containerNnsZone     string
 	containerNoTimestamp bool
 	containerSubnet      string
 	force                bool
@@ -160,6 +162,8 @@ func initContainerCreateCmd() {
 	flags.StringSliceVarP(&containerAttributes, "attributes", "a", nil, "Comma separated pairs of container attributes in form of Key1=Value1,Key2=Value2")
 	flags.BoolVar(&containerAwait, "await", false, "Block execution until container is persisted")
 	flags.StringVar(&containerName, "name", "", "Container name attribute")
+	flags.StringVar(&containerNnsName, "nns-name", "", "Container nns name attribute")
+	flags.StringVar(&containerNnsZone, "nns-zone", "", "Container nns zone attribute")
 	flags.BoolVar(&containerNoTimestamp, "disable-timestamp", false, "Disable timestamp container attribute")
 	flags.StringVar(&containerSubnet, "subnet", "", "String representation of container subnetwork")
 	flags.BoolVarP(&force, commonflags.ForceFlag, commonflags.ForceFlagShorthand, false,
@@ -212,6 +216,11 @@ func parseAttributes(dst *container.Container, attributes []string) error {
 	if containerName != "" {
 		container.SetName(dst, containerName)
 	}
+
+	var domain container.Domain
+	domain.SetName(containerNnsName)
+	domain.SetZone(containerNnsZone)
+	container.WriteDomain(dst, domain)
 
 	return nil
 }
