@@ -197,12 +197,12 @@ func parseContainerPolicy(cmd *cobra.Command, policyString string) (*netmap.Plac
 
 func parseAttributes(dst *container.Container, attributes []string) error {
 	for i := range attributes {
-		kvPair := strings.Split(attributes[i], attributeDelimiter)
-		if len(kvPair) != 2 {
+		k, v, found := strings.Cut(attributes[i], attributeDelimiter)
+		if !found {
 			return errors.New("invalid container attribute")
 		}
 
-		dst.SetAttribute(kvPair[0], kvPair[1])
+		dst.SetAttribute(k, v)
 	}
 
 	if !containerNoTimestamp {

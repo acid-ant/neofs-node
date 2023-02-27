@@ -73,18 +73,18 @@ func stringifyAddress(addr oid.Address) string {
 }
 
 func addressFromString(s string) (oid.Address, error) {
-	i := strings.IndexByte(s, '.')
-	if i == -1 {
+	before, after, found := strings.Cut(s, ".")
+	if !found {
 		return oid.Address{}, errors.New("invalid address")
 	}
 
 	var obj oid.ID
-	if err := obj.DecodeString(s[:i]); err != nil {
+	if err := obj.DecodeString(before); err != nil {
 		return oid.Address{}, err
 	}
 
 	var cnr cid.ID
-	if err := cnr.DecodeString(s[i+1:]); err != nil {
+	if err := cnr.DecodeString(after); err != nil {
 		return oid.Address{}, err
 	}
 

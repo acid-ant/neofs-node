@@ -226,35 +226,32 @@ func parseEACLTable(tb *eacl.Table, args []string) error {
 
 func parseEACLRecord(args []string) (*eacl.Record, error) {
 	r := new(eacl.Record)
-	for i := range args {
-		ss := strings.SplitN(args[i], ":", 2)
+	for _, arg := range args {
+		before, after, found := strings.Cut(arg, ":")
 
-		switch prefix := strings.ToLower(ss[0]); prefix {
+		switch prefix := strings.ToLower(before); prefix {
 		case "req", "obj": // filters
-			if len(ss) != 2 {
-				return nil, fmt.Errorf("invalid filter or target: %s", args[i])
-			}
-
-			i := strings.Index(ss[1], "=")
-			if i < 0 {
-				return nil, fmt.Errorf("invalid filter key-value pair: %s", ss[1])
+			if !found {
+				return nil, fmt.Errorf("invalid filter or target: %s", arg)
 			}
 
 			var key, value string
 			var op eacl.Match
+			var f bool
 
-			if 0 < i && ss[1][i-1] == '!' {
-				key = ss[1][:i-1]
+			key, value, f = strings.Cut(after, "!=")
+			if f {
 				op = eacl.MatchStringNotEqual
 			} else {
-				key = ss[1][:i]
+				key, value, f = strings.Cut(after, "=")
+				if !f {
+					return nil, fmt.Errorf("invalid filter key-value pair: %s", after)
+				}
 				op = eacl.MatchStringEqual
 			}
 
-			value = ss[1][i+1:]
-
 			typ := eacl.HeaderFromRequest
-			if ss[0] == "obj" {
+			if before == "obj" {
 				typ = eacl.HeaderFromObject
 			}
 
@@ -263,8 +260,8 @@ func parseEACLRecord(args []string) (*eacl.Record, error) {
 			var err error
 
 			var pubs []ecdsa.PublicKey
-			if len(ss) == 2 {
-				pubs, err = parseKeyList(ss[1])
+			if found {
+				pubs, err = parseKeyList(after)
 				if err != nil {
 					return nil, err
 				}
@@ -281,7 +278,7 @@ func parseEACLRecord(args []string) (*eacl.Record, error) {
 			eacl.AddFormedTarget(r, role, pubs...)
 
 		default:
-			return nil, fmt.Errorf("invalid prefix: %s", ss[0])
+			return nil, fmt.Errorf("invalid prefix: %s", before)
 		}
 	}
 
