@@ -179,12 +179,12 @@ func parseObjectAttrs(cmd *cobra.Command) ([]object.Attribute, error) {
 
 	attrs := make([]object.Attribute, len(rawAttrs), len(rawAttrs)+2) // name + timestamp attributes
 	for i := range rawAttrs {
-		kv := strings.SplitN(rawAttrs[i], "=", 2)
-		if len(kv) != 2 {
+		k, v, found := strings.Cut(rawAttrs[i], "=")
+		if !found {
 			return nil, fmt.Errorf("invalid attribute format: %s", rawAttrs[i])
 		}
-		attrs[i].SetKey(kv[0])
-		attrs[i].SetValue(kv[1])
+		attrs[i].SetKey(k)
+		attrs[i].SetValue(v)
 	}
 
 	disableFilename, _ := cmd.Flags().GetBool("disable-filename")
@@ -218,26 +218,26 @@ func parseObjectNotifications(cmd *cobra.Command) (*object.NotificationInfo, err
 		return nil, nil
 	}
 
-	rawSlice := strings.SplitN(raw, separator, 2)
-	if len(rawSlice) != 2 {
+	before, after, found := strings.Cut(raw, separator)
+	if !found {
 		return nil, fmt.Errorf("notification must be in the form of: *epoch*%s*topic*, got %s", separator, raw)
 	}
 
 	ni := new(object.NotificationInfo)
 
-	epoch, err := strconv.ParseUint(rawSlice[0], 10, 64)
+	epoch, err := strconv.ParseUint(before, 10, 64)
 	if err != nil {
-		return nil, fmt.Errorf("could not parse notification epoch %s: %w", rawSlice[0], err)
+		return nil, fmt.Errorf("could not parse notification epoch %s: %w", before, err)
 	}
 
 	ni.SetEpoch(epoch)
 
-	if rawSlice[1] == "" {
+	if after == "" {
 		return nil, fmt.Errorf("incorrect empty topic: use %s to force using default topic", useDefaultTopic)
 	}
 
-	if rawSlice[1] != useDefaultTopic {
-		ni.SetTopic(rawSlice[1])
+	if after != useDefaultTopic {
+		ni.SetTopic(after)
 	}
 
 	return ni, nil

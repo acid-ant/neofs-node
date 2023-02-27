@@ -65,14 +65,14 @@ func loadEnv(path string) {
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		pair := strings.SplitN(scanner.Text(), "=", 2)
-		if len(pair) != 2 {
+		k, v, found := strings.Cut(scanner.Text(), "=")
+		if !found {
 			continue
 		}
 
-		pair[1] = strings.Trim(pair[1], `"`)
+		v = strings.Trim(v, `"`)
 
-		err = os.Setenv(pair[0], pair[1])
+		err = os.Setenv(k, v)
 		if err != nil {
 			panic("can't set environment variable")
 		}

@@ -79,14 +79,14 @@ func parseMeta(cmd *cobra.Command) ([]*tree.KeyValue, error) {
 
 	pairs := make([]*tree.KeyValue, 0, len(raws))
 	for i := range raws {
-		kv := strings.SplitN(raws[i], "=", 2)
-		if len(kv) != 2 {
+		k, v, found := strings.Cut(raws[i], "=")
+		if !found {
 			return nil, fmt.Errorf("invalid meta pair format: %s", raws[i])
 		}
 
 		var pair tree.KeyValue
-		pair.Key = kv[0]
-		pair.Value = []byte(kv[1])
+		pair.Key = k
+		pair.Value = []byte(v)
 
 		pairs = append(pairs, &pair)
 	}

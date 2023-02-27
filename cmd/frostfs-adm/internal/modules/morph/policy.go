@@ -27,23 +27,23 @@ func setPolicyCmd(cmd *cobra.Command, args []string) error {
 
 	bw := io.NewBufBinWriter()
 	for i := range args {
-		kv := strings.SplitN(args[i], "=", 2)
-		if len(kv) != 2 {
+		k, v, found := strings.Cut(args[i], "=")
+		if !found {
 			return fmt.Errorf("invalid parameter format, must be Parameter=Value")
 		}
 
-		switch kv[0] {
+		switch k {
 		case execFeeParam, storagePriceParam, setFeeParam:
 		default:
 			return fmt.Errorf("parameter must be one of %s, %s and %s", execFeeParam, storagePriceParam, setFeeParam)
 		}
 
-		value, err := strconv.ParseUint(kv[1], 10, 32)
+		value, err := strconv.ParseUint(v, 10, 32)
 		if err != nil {
 			return fmt.Errorf("can't parse parameter value '%s': %w", args[1], err)
 		}
 
-		emit.AppCall(bw.BinWriter, policy.Hash, "set"+kv[0], callflag.All, int64(value))
+		emit.AppCall(bw.BinWriter, policy.Hash, "set"+k, callflag.All, int64(value))
 	}
 
 	if err := wCtx.sendCommitteeTx(bw.Bytes(), false); err != nil {
